@@ -1,6 +1,7 @@
 import "./App.css";
 // import { icons } from "./components/icons";
 import HomePage from "@/pages/home/homepage";
+import NavBarMenuPage from "@/pages/navbarMenu/navbarmenu";
 
 
 function App() {
@@ -12,7 +13,7 @@ function App() {
       <icons.export />
       <icons.upload />
       <icons.loop /> */}
-
+     <NavBarMenuPage/>
      <HomePage/>
     </>
   );
