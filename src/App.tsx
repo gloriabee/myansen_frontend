@@ -1,6 +1,8 @@
 import "./App.css";
 import { icons } from "./components/icons";
 import NavBar from "@components/NavBar";
+import { Button } from "@/components/ui/button";
+
 function App() {
   const navItems = [
     {
@@ -29,7 +31,7 @@ function App() {
       <icons.loop /> */}
 
       <NavBar logoText="MyanSen" navItems={navItems} />
-
+      <Button variant="outline">Button</Button>
     </>
   );
 }
