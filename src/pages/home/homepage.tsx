@@ -10,7 +10,9 @@ export default function HomePage() {
  
     return (
       <>
+
         <div className="grid w-full place-content-center gap-4 mt-24">
+
 
           <Tabs defaultValue="textOnly" className="w-[400px]">
             <TabsList>
