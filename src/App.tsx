@@ -2,19 +2,23 @@ import "./App.css";
 // import { icons } from "./components/icons";
 import HomePage from "@/pages/home/homepage";
 import NavBarMenuPage from "@/pages/navbarMenu/navbarmenu";
+import Footer from "@/components/Footer";
+
 
 
 function App() {
   
   return (
     <>
-      {/* <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      <icons.dropdown />
-      <icons.export />
-      <icons.upload />
-      <icons.loop /> */}
-     <NavBarMenuPage/>
-     <HomePage/>
+      <div className="flex flex-col min-h-dvh">
+        <NavBarMenuPage />
+        <main className="flex-grow">
+          <HomePage />
+        </main>
+
+        <Footer year={2025} companyName="MyanmarSentiment API" />
+      </div>
+
     </>
   );
 }

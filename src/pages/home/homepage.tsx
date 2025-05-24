@@ -10,7 +10,8 @@ export default function HomePage() {
  
     return (
       <>
-        <div className="grid h-80 w-full place-content-center gap-4 mt-6">
+        <div className="grid w-full place-content-center gap-4 mt-24">
+
           <Tabs defaultValue="textOnly" className="w-[400px]">
             <TabsList>
               <TabsTrigger value="textOnly">Enter Text</TabsTrigger>

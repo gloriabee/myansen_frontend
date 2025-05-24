@@ -20,8 +20,9 @@ export default function NavBarMenuPage() {
        },
      ];
     return (
-        <>
+
           <NavBar logoText="MyanSen" navItems={navItems} />
-        </>
+    
+
     );
 }
