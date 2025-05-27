@@ -4,24 +4,20 @@ export default function TestMLOpsPage() {
     const handleClick = () => {
         console.log("Click!");
         
-      fetch("http://localhost:8000/retrain", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({message: "Retraining the model with feedback data on progress."}),
+      fetch("http://127.0.0.1:8000/retrainmodel", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Model retraining response:", data);
-        })
-        .catch(error => {
-            console.error("Error retraining model:", error);
+        .catch((error) => {
+          console.error("Error retraining model:", error);
         });
       
         
