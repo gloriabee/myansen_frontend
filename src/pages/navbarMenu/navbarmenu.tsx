@@ -11,8 +11,8 @@ export default function NavBarMenuPage() {
          link: "/apiservices",
        },
        {
-         label: "Pricing",
-         link: "/pricing",
+         label: "TestML",
+         link: "/testmlops",
        },
        {
          label: "Profile",
