@@ -7,13 +7,7 @@ import NotFoundPage from "@/pages/NotFoundPage";
 import Footer from "@/components/Footer";
 import { Route, Routes } from "react-router-dom";
 
-
-
 import Footer from "@/components/Footer";
-
-
-
-
 function App() {
   
   return (
@@ -26,7 +20,6 @@ function App() {
             <Route path="/testmlops" element={< TestMLOpsPage/>}></Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
-
         </main>
 
         <Footer year={2025} companyName="MyanmarSentiment API" />
