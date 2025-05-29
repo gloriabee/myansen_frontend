@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-
 interface NavItem {
   label: string;
-  link: string; 
-  icon?: string; 
-  subItems?: NavItem[]; 
+  link: string;
+  icon?: string;
+  subItems?: NavItem[];
 }
 
 interface NavBarProps {
@@ -14,11 +13,11 @@ interface NavBarProps {
   navItems: NavItem[];
 }
 
-const NavBar = ({ logoText, navItems } : NavBarProps) => {
+const NavBar = ({ logoText, navItems }: NavBarProps) => {
   const [isMobileViewOpen, setMobileViewOpen] = useState(false);
 
   return (
-    <nav className="bg-teal-700 p-4 shadow-md rounded-tl-lg rounded-tr-lg mt-6"> 
+    <nav className="bg-teal-700 p-4 shadow-md rounded-tl-lg rounded-tr-lg">
       <div className="container mx-auto flex justify-between items-center text-white">
         {/* Logo/Brand Name */}
         <a href="/" className="text-xl font-bold">
