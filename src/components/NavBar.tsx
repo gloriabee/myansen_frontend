@@ -17,7 +17,7 @@ const NavBar = ({ logoText, navItems }: NavBarProps) => {
   const [isMobileViewOpen, setMobileViewOpen] = useState(false);
 
   return (
-    <nav className="bg-teal-700 p-4 shadow-md rounded-tl-lg rounded-tr-lg">
+    <nav className="bg-teal-700 p-4 shadow-md ">
       <div className="container mx-auto flex justify-between items-center text-white">
         {/* Logo/Brand Name */}
         <a href="/" className="text-xl font-bold">
