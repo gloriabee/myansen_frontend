@@ -27,17 +27,11 @@ const loginSchema = z.object({
     .min(8, "Password must be at least 8 characters")
     .max(12, "Password must be at most 12 characters"),
 });
+
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  // const submit = useSubmit();
-  // const navigation = useNavigation();
-  // const actionData = useActionData() as {
-  //   error?: string;
-  //   message?: string;
-  // };
-  // const isSubmitting = navigation.state === "submitting";
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -142,6 +136,7 @@ export function LoginForm({
           </div>
         </form>
       </Form>
+
 
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}

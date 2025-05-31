@@ -39,13 +39,6 @@ export function RegisterForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  // const submit = useSubmit();
-  // const navigation = useNavigation();
-  // const actionData = useActionData() as {
-  //   error?: string;
-  //   message?: string;
-  // };
-  // const isSubmitting = navigation.state === "submitting";
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -176,9 +169,9 @@ export function RegisterForm({
       </Form>
 
       <div className="text-center text-sm">
-        Already have an account?{" "}
-        <Link to="/login" className="underline underline-offset-4">
-          Sign In
+        Don&apos;t have an account?{" "}
+        <Link to="/register" className="underline underline-offset-4">
+          Sign up
         </Link>
       </div>
     </div>
