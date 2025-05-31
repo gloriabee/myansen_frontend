@@ -1,7 +1,13 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { PasswordInput } from "@/components/auth/password_input";
+import {
+  Link,
+  // useActionData,
+  // useNavigation,
+  // useSubmit,
+} from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,9 +21,7 @@ import {
 
 // Validation schema
 const loginSchema = z.object({
-  email: z.string().email({
-    message: "Invalid email address",
-  }),
+  email: z.string().email(),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -27,6 +31,14 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  // const submit = useSubmit();
+  // const navigation = useNavigation();
+  // const actionData = useActionData() as {
+  //   error?: string;
+  //   message?: string;
+  // };
+  // const isSubmitting = navigation.state === "submitting";
+
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -81,30 +93,33 @@ export function LoginForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input
-                          id="password"
-                          type="password"
+                        <PasswordInput
                           placeholder="password"
-                          autoComplete="off"
                           required
                           {...field}
                         />
                       </FormControl>
                       <div className="flex items-center">
-                        <a
-                          href="#"
+                        <Link
+                          to="/reset"
                           className="ml-auto inline-block text-xs underline-offset-4 hover:underline"
                         >
                           Forgot your password?
-                        </a>
+                        </Link>
                       </div>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+              {/* {
+                actionData && (
+                  <p className="text-xs text-red-400">{actionData?.message}</p>
+                )
+              } */}
               <Button type="submit" className="w-full bg-primary_1">
                 Login
+                {/* {isSubmitting ? "Submitting" : "Login"} */}
               </Button>
             </div>
 
