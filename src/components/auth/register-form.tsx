@@ -39,7 +39,6 @@ export function RegisterForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -169,9 +168,9 @@ export function RegisterForm({
       </Form>
 
       <div className="text-center text-sm">
-        Don&apos;t have an account?{" "}
-        <Link to="/register" className="underline underline-offset-4">
-          Sign up
+        Already have an account?{" "}
+        <Link to="/login" className="underline underline-offset-4">
+          Log in
         </Link>
       </div>
     </div>
