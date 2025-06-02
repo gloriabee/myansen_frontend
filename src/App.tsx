@@ -1,5 +1,5 @@
 import "./App.css";
-
+// import { icons } from "./components/icons";
 import { Outlet } from "react-router-dom";
 import NavBarMenuPage from "@/pages/navbarMenu/navbarmenu";
 

@@ -1,0 +1,5 @@
+npm i zod
+npm i react-hook-form
+npm i npm i @hookform/resolvers zod 
+npm i @tanstack/react-query zustand immer axios
+

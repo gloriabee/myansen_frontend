@@ -9,7 +9,7 @@ const Footer = ({ year, companyName, label, link }: FooterProps) => {
   return (
     <>
       <footer
-        className="bg-teal-700 p-4 shadow-md rounded-bl-lg rounded-br-lg sm:footer-horizontal
+        className="bg-teal-700 p-4 shadow-md  sm:footer-horizontal
        "
       >
         <div className="container mx-auto text-center text-white">

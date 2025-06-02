@@ -17,7 +17,7 @@ const NavBar = ({ logoText, navItems }: NavBarProps) => {
   const [isMobileViewOpen, setMobileViewOpen] = useState(false);
 
   return (
-    <nav className="bg-teal-700 p-4 shadow-md rounded-tl-lg rounded-tr-lg">
+    <nav className="bg-teal-700 p-4 shadow-md ">
       <div className="container mx-auto flex justify-between items-center text-white">
         {/* Logo/Brand Name */}
         <a href="/" className="text-xl font-bold">
@@ -66,7 +66,7 @@ const NavBar = ({ logoText, navItems }: NavBarProps) => {
                     <Link
                       key={subindex}
                       to={subItem.link}
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:rounded-md flex items-center" // Added flex items-center
+                      className="px-4 py-2 text-gray-800 hover:bg-gray-100 hover:rounded-md flex items-center" // Added flex items-center
                     >
                       {subItem.icon && (
                         <img
@@ -126,7 +126,7 @@ const NavBar = ({ logoText, navItems }: NavBarProps) => {
                 {" "}
                 <a
                   href={item.link}
-                  className="block text-white px-4 py-2 hover:bg-teal-800 transition-colors duration-200 flex items-center"
+                  className=" text-white px-4 py-2 hover:bg-teal-800 transition-colors duration-200 flex items-center"
                   onClick={() => setMobileViewOpen(false)}
                 >
                   {item.icon && (
@@ -144,7 +144,7 @@ const NavBar = ({ logoText, navItems }: NavBarProps) => {
                       <Link
                         key={subIndex}
                         to={subItem.link}
-                        className="block text-white px-4 py-2 hover:bg-teal-800 transition-colors duration-200 text-sm flex items-center" // Added flex items-center
+                        className=" text-white px-4 py-2 hover:bg-teal-800 transition-colors duration-200 text-sm flex items-center" // Added flex items-center
                         onClick={() => setMobileViewOpen(false)}
                       >
                         {subItem.icon && (
