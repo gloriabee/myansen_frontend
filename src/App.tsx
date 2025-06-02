@@ -4,6 +4,8 @@ import { Outlet } from "react-router-dom";
 import NavBarMenuPage from "@/pages/navbarMenu/navbarmenu";
 
 import Footer from "@/components/Footer";
+import { Toaster } from "@/components/ui/toaster";
+
 
 function App() {
   return (
@@ -16,6 +18,7 @@ function App() {
 
         <Footer year={2025} companyName="MyanmarSentiment API" />
       </div>
+      <Toaster />
     </>
   );
 }
