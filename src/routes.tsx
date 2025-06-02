@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
+
 import HomePage from "@/pages/home/homepage";
 import TestMLOpsPage from "@/pages/testMLOps/testMLOpsPage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/apiservices",
+        element: <ApiServicesPage />,
       },
       {
         path: "/testmlops",
