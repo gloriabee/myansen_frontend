@@ -52,7 +52,9 @@ export const columns: ColumnDef<ApiKey>[] = [
    
       const handleRevoke = () => {
         console.log(`Revoking key: ${apiKey.name} (ID: ${apiKey.id})`);
-        alert(`Key "${apiKey.name}" would be revoked now!`);
+        // Logic to revoke the API key
+        // This could involve an API call to your backend service
+
       };
 
       return (
