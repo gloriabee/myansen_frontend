@@ -4,10 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DataTable } from "@/components/DataTable"; 
 import { columns } from "@/components/apiColumns";
 import { ApiKey } from "@/types/ApiKey";
-import { Alert , AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
-import { ToastAction } from "@/components/ui/toast";
-
+import { ToastAction } from "@/components/ui/toast"; 
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -98,7 +95,7 @@ export default function ApiServicesPage() {
       {/* API Keys Management Table Section */}
       <div className="container mx-auto py-5">
         <h1 className="text-2xl font-bold mb-6">API Keys Management</h1>{" "}
-        <DataTable columns={columns} data={apiKeys} />
+        <DataTable columns={columns} data={apiKeys} noCase={"No Key Generated yet!"} />
       </div>
     </div>
   );
