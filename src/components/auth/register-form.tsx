@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PasswordInput } from "@/components/auth/password_input";
+import { useNavigate } from "react-router-dom";
 
 // Validation schema
 const registerSchema = z
@@ -49,9 +50,29 @@ export function RegisterForm({
     },
   });
 
-  function onSubmit(values: z.infer<typeof registerSchema>) {
-    console.log(values);
-    // submit(values, { method: "post", action: "." });
+  const navigate = useNavigate();
+  async function onSubmit(values: z.infer<typeof registerSchema>) {
+    try {
+      const response = await fetch("http://localhost:8000/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "register failed");
+      }
+      console.log("Registration is successful");
+      navigate("/login");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Registration error:", error.message);
+      } else {
+        console.error("Registration error:", error);
+      }
+    }
   }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
