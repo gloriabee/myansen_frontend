@@ -18,6 +18,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useNavigate } from "react-router-dom";
 
 // Validation schema
 const loginSchema = z.object({
@@ -32,7 +33,6 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -40,9 +40,37 @@ export function LoginForm({
       password: "",
     },
   });
-  function onSubmit(values: z.infer<typeof loginSchema>) {
-    console.log(values);
-    // submit(values, { method: "post", action: "/login" });
+
+  const navigate = useNavigate();
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    try {
+      const response = await fetch("http://localhost:8000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Login failed");
+      }
+
+      const data = await response.json();
+
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("token_type", data.token_type);
+      console.log("Login successful!");
+      navigate("/");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Login error:", error.message);
+        form.setError("email", { message: error.message });
+      } else {
+        console.error("Login error:", error);
+      }
+    }
   }
 
   return (
@@ -106,14 +134,9 @@ export function LoginForm({
                   )}
                 />
               </div>
-              {/* {
-                actionData && (
-                  <p className="text-xs text-red-400">{actionData?.message}</p>
-                )
-              } */}
+
               <Button type="submit" className="w-full bg-primary_1">
                 Login
-                {/* {isSubmitting ? "Submitting" : "Login"} */}
               </Button>
             </div>
 
@@ -136,7 +159,6 @@ export function LoginForm({
           </div>
         </form>
       </Form>
-
 
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
