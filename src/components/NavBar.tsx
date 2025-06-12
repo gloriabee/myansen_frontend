@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
+import AuthDropDown from "./auth/AuthDropDown";
+import type { User } from "@/types/User";
+// import { UserData } from "@/configs/user";
 interface NavItem {
   label: string;
   link: string;
@@ -11,10 +13,27 @@ interface NavItem {
 interface NavBarProps {
   logoText: string;
   navItems: NavItem[];
+  // user?: User | null;
 }
 
 const NavBar = ({ logoText, navItems }: NavBarProps) => {
   const [isMobileViewOpen, setMobileViewOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    // Listen for login/logout events
+    const handleUserChange = () => {
+      const updatedUser = localStorage.getItem("user");
+      setUser(updatedUser ? JSON.parse(updatedUser) : null);
+    };
+
+    window.addEventListener("userChanged", handleUserChange);
+    return () => window.removeEventListener("userChanged", handleUserChange);
+  }, []);
 
   return (
     <nav className="bg-teal-700 p-4 shadow-md ">
@@ -82,6 +101,8 @@ const NavBar = ({ logoText, navItems }: NavBarProps) => {
               )}
             </div>
           ))}
+
+          <AuthDropDown user={user} />
         </div>
 
         {/* Mobile Menu Button (Hamburger/Close Icon) */}
