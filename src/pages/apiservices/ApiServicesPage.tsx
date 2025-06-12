@@ -95,7 +95,7 @@ export default function ApiServicesPage() {
       {/* API Keys Management Table Section */}
       <div className="container mx-auto py-5">
         <h1 className="text-2xl font-bold mb-6">API Keys Management</h1>{" "}
-        <DataTable columns={columns} data={apiKeys} noCase={"No Key Generated yet!"} />
+        <DataTable columns={columns} data={apiKeys} noCase={"No Key Generated yet!"} itemsPerPage={3} />
       </div>
     </div>
   );
