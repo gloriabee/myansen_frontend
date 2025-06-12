@@ -21,7 +21,7 @@ const AuthDropDown = ({ user }: UserProps) => {
   if (!user) {
     return (
       <Button asChild>
-        <Link to="/signin">
+        <Link to="/login">
           Sign In
           <span className="sr-only">Sign In</span>
         </Link>
