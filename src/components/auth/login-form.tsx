@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 
+
 // Validation schema
 const loginSchema = z.object({
   email: z.string().email(),
@@ -66,6 +67,7 @@ export function LoginForm({
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("token_type", data.token_type);
 
+
       //fetch user profile with token
       const profileResponse = await fetch("http://localhost:8000/profile", {
         method: "GET",
@@ -86,6 +88,7 @@ export function LoginForm({
       };
       localStorage.setItem("user", JSON.stringify(normalizedUser));
       window.dispatchEvent(new Event("userChanged"));
+
       console.log("Login successful!");
       navigate("/");
     } catch (error: unknown) {

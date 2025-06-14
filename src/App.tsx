@@ -6,7 +6,6 @@ import NavBarMenuPage from "@/pages/navbarMenu/navbarmenu";
 import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/toaster";
 
-
 function App() {
   return (
     <>
