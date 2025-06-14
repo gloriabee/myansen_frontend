@@ -7,9 +7,10 @@ import NotFoundPage from "@/pages/ErrorPage/NotFoundPage";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
 import ApiServicesPage from "@/pages/apiservices/ApiServicesPage";
-import UniversalErrorPage  from "@/pages/ErrorPage/UniversalErrorPage";
+import UniversalErrorPage from "@/pages/ErrorPage/UniversalErrorPage";
 import DashboardPage from "@/pages/dashboardPage/dashboardpage";
 
+import ProtectedRoutes from "@/utils/protectedRoutes";
 
 export const router = createBrowserRouter([
   {
@@ -20,23 +21,28 @@ export const router = createBrowserRouter([
         path: "/",
         element: <HomePage />,
       },
+
       {
-        path: "/dashboard",
-        element: <DashboardPage />,
-      },
-      {
-        path: "/apiservices",
-        element: <ApiServicesPage />,
-      },
-      {
-        path: "/testmlops",
-        element: <TestMLOpsPage />,
+        element: <ProtectedRoutes />,
+        children: [
+          {
+            path: "/dashboard",
+            element: <DashboardPage />,
+          },
+          {
+            path: "/apiservices",
+            element: <ApiServicesPage />,
+          },
+          {
+            path: "/testmlops",
+            element: <TestMLOpsPage />,
+          },
+        ],
       },
       {
         path: "*",
         element: <NotFoundPage />,
-
-      }
+      },
     ],
   },
   {
