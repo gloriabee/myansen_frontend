@@ -1,4 +1,5 @@
 import { DataTable } from "@/components/DataTable";
+import { useLocation } from "react-router-dom";
 import { sentimentColumns } from "@/components/sentimentColumns";
 import { type SentimentColumn } from "@/types/sentimentColums";
 import { Button } from "@/components/ui/button";
@@ -6,43 +7,33 @@ import { icons } from "@/components/icons";
 import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
+  const location = useLocation();
+  const { sentimentResult } = location.state || {};
   const [sentimentData, setSentimentData] = useState<SentimentColumn[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("access_token");
+    if (sentimentResult) {
+      const newEntry: SentimentColumn = {
+        text: sentimentResult.text,
+        sentiment: sentimentResult.predicted_label.toLowerCase(),
+        confidence: sentimentResult.predicted_confidence ?? 0,
+      };
 
-      //Guest flow
-      if (!token) {
-        const guestResult = localStorage.getItem("guest_result");
-        if (guestResult) {
-          const parsedResult = JSON.parse(guestResult);
-          setSentimentData([parsedResult]);
+      // Prevent duplication (only add if it's not already in the list)
+      setSentimentData((prev) => {
+        const exists = prev.some(
+          (item) =>
+            item.text === newEntry.text &&
+            item.sentiment === newEntry.sentiment &&
+            item.confidence === newEntry.confidence
+        );
+        if (exists) {
+          return prev;
         }
-        return;
-      }
-
-      //logged in user flow
-      try {
-        const response = await fetch("http://localhost:8000/sentiments", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch sentiment history");
-        }
-        const data = await response.json();
-        setSentimentData(data);
-        console.log(data);
-      } catch (error) {
-        console.error("Error loading sentiment history:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+        return [newEntry, ...prev];
+      });
+    }
+  }, [sentimentResult]);
 
   const noCase =
     "<b>No results yet!</b><br> Upload a file or paste text in the 'File Upload' tab to see sentiment analysis results here</br>";
