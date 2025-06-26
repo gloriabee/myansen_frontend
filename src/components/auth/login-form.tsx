@@ -20,8 +20,7 @@ import {
 } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-
+import { handleGoogleLogin } from "@/utils/googleAuth";
 
 // Validation schema
 const loginSchema = z.object({
@@ -31,8 +30,6 @@ const loginSchema = z.object({
     .min(8, "Password must be at least 8 characters")
     .max(12, "Password must be at most 12 characters"),
 });
-
-
 
 export function LoginForm({
   className,
@@ -66,7 +63,6 @@ export function LoginForm({
 
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("token_type", data.token_type);
-
 
       //fetch user profile with token
       const profileResponse = await fetch("http://localhost:8000/profile", {
@@ -177,19 +173,9 @@ export function LoginForm({
             <div className="flex justify-center">
               <GoogleLogin
                 onSuccess={(credentialResponse) => {
-                  const decoded = jwtDecode(credentialResponse.credential);
-                  console.log(JSON.stringify(decoded));
-                  //store user data in local storage
-                  localStorage.setItem("user", JSON.stringify(decoded));
-                  localStorage.setItem(
-                    "access_token",
-                    credentialResponse.credential
-                  );
-                  window.dispatchEvent(new Event("userChanged"));
-                  navigate("/");
+                  handleGoogleLogin(credentialResponse.credential, navigate);
                 }}
                 onError={() => console.log("Login Failed")}
-                auto_select={true}
               />
             </div>
           </div>
