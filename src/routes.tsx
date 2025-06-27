@@ -23,12 +23,13 @@ export const router = createBrowserRouter([
       },
 
       {
+
+        path: "/dashboard",
+        element: <DashboardPage />,
+      },
+      {
         element: <ProtectedRoutes />,
         children: [
-          {
-            path: "/dashboard",
-            element: <DashboardPage />,
-          },
           {
             path: "/apiservices",
             element: <ApiServicesPage />,

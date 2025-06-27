@@ -2,42 +2,56 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import Dropzone from "@/components/ui/dropzone";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-
-
+import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const { toast } = useToast();
+
+  const tokenRef = useRef<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("textOnly");
   const [content, setContent] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  //Function to handle file contents within multiple files 
-const handlefileConents = async (files: File[]): Promise<string[]> => {
-  const readFile = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error("File reading failed"));
-      reader.readAsText(file);
-    });
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    tokenRef.current = token;
+    console.log("Token", token);
+  }, []);
+
+  //Function to handle file contents within multiple files
+  const handlefileConents = async (files: File[]): Promise<string[]> => {
+    const readFile = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error("File reading failed"));
+        reader.readAsText(file);
+      });
+    };
+
+    const fileReadPromises = files.map(readFile);
+    return Promise.all(fileReadPromises);
   };
 
-  const fileReadPromises = files.map(readFile);
-  return Promise.all(fileReadPromises); 
-};
-
   //Calling backend API Function
-  const callAPI = async (data: any) => { 
+  const callAPI = async (data: any) => {
     console.log("Calling API with data:", data);
-    try { 
-      const res = await fetch("http://127.0.0.1:8000/userinput", {
+    try {
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+
+      if (tokenRef.current) {
+        headers.Authorization = `Bearer ${tokenRef.current}`;
+      }
+
+      const res = await fetch("http://127.0.0.1:8000/predict", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify(data),
       });
 
@@ -46,8 +60,13 @@ const handlefileConents = async (files: File[]): Promise<string[]> => {
       }
       const result = await res.json();
       console.log("API response:", result);
-    }
-    catch (error) {
+
+      if (!tokenRef.current) {
+        localStorage.setItem("guest_result", JSON.stringify(result));
+      }
+
+      navigate("/dashboard");
+    } catch (error) {
       console.error("API call failed:", error);
       toast({
         variant: "destructive",
@@ -55,36 +74,36 @@ const handlefileConents = async (files: File[]): Promise<string[]> => {
         description: "An error occurred while processing your request.",
       });
     }
-  }
+  };
 
-  const handleAnalyze = async () => { 
+  const handleAnalyze = async () => {
     setIsLoading(true);
 
-  // Validate content and files
-  if (!content && files.length === 0) {
-    toast({
-      className: "w-[400px] text-left",
-      variant: "destructive",
-      title: "No content provided",
-      description: "Please enter text or upload files to analyze.",
-    });
-    setIsLoading(false);
-    return;
-  }
-   let fileContents: string[] = [];
-      if (files.length > 0) {
-        fileContents = await handlefileConents(files); 
-      }
-    
+    // Validate content and files
+    if (!content && files.length === 0) {
+      toast({
+        className: "w-[400px] text-left",
+        variant: "destructive",
+        title: "No content provided",
+        description: "Please enter text or upload files to analyze.",
+      });
+      setIsLoading(false);
+      return;
+    }
+    let fileContents: string[] = [];
+    if (files.length > 0) {
+      fileContents = await handlefileConents(files);
+    }
+
     // Simulate an API call
-    await callAPI({ text:content, uploadedFiles: fileContents});
+    await callAPI({ text: content, uploadedFiles: fileContents });
 
     // Removed redundant `if (isLoading)` check.
-    
+
     setTimeout(() => {
       setIsLoading(false);
     }, 2000);
-  }
+  };
 
   return (
     <>
@@ -120,12 +139,9 @@ const handlefileConents = async (files: File[]): Promise<string[]> => {
               maxSize={10 * 1024 * 1024} // 10 MB
               initialFiles={files}
               onDropAccepted={(acceptedFiles) => {
-                acceptedFiles
-                  .map((file) => file.name)
-                  .join(", ");
+                acceptedFiles.map((file) => file.name).join(", ");
                 setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
               }}
-
               onDropRejected={(fileRejections) => {
                 const errorMessage = fileRejections
                   .map(
@@ -145,7 +161,9 @@ const handlefileConents = async (files: File[]): Promise<string[]> => {
           </TabsContent>
         </Tabs>
       </div>
-      <Button onClick={handleAnalyze} className="mb-2">Analyze</Button>
+      <Button onClick={handleAnalyze} className="mb-2">
+        Analyze
+      </Button>
     </>
   );
 }
