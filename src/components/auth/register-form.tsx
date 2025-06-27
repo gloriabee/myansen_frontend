@@ -20,7 +20,11 @@ import {
 import { PasswordInput } from "@/components/auth/password_input";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
+
+import { handleGoogleLogin } from "@/utils/googleAuth";
+
 import { jwtDecode } from "jwt-decode";
+
 
 // Validation schema
 const registerSchema = z
@@ -179,16 +183,9 @@ export function RegisterForm({
             <div className="flex justify-center">
               <GoogleLogin
                 onSuccess={(credentialResponse) => {
-                  const decoded = jwtDecode(credentialResponse.credential);
-                  console.log(JSON.stringify(decoded));
-                  //store user data in local storage
-                  localStorage.setItem("user", JSON.stringify(decoded));
-                  localStorage.setItem(
-                    "access_token",
-                    credentialResponse.credential
-                  );
-                  window.dispatchEvent(new Event("userChanged"));
-                  navigate("/");
+
+                  handleGoogleLogin(credentialResponse.credential, navigate);
+
                 }}
                 onError={() => console.log("Login Failed")}
                 auto_select={true}

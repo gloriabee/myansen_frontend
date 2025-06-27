@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/form";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
+
+import { handleGoogleLogin } from "@/utils/googleAuth";
 import { jwtDecode } from "jwt-decode";
 
 
@@ -66,6 +68,7 @@ export function LoginForm({
 
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("token_type", data.token_type);
+
 
 
       //fetch user profile with token
@@ -177,19 +180,11 @@ export function LoginForm({
             <div className="flex justify-center">
               <GoogleLogin
                 onSuccess={(credentialResponse) => {
-                  const decoded = jwtDecode(credentialResponse.credential);
-                  console.log(JSON.stringify(decoded));
-                  //store user data in local storage
-                  localStorage.setItem("user", JSON.stringify(decoded));
-                  localStorage.setItem(
-                    "access_token",
-                    credentialResponse.credential
-                  );
-                  window.dispatchEvent(new Event("userChanged"));
-                  navigate("/");
+
+                  handleGoogleLogin(credentialResponse.credential, navigate);
                 }}
                 onError={() => console.log("Login Failed")}
-                auto_select={true}
+
               />
             </div>
           </div>
