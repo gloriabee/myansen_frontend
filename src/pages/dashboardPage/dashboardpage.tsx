@@ -1,20 +1,19 @@
 import { DataTable } from "@/components/DataTable";
-
+import { Button } from "@/components/ui/button";
 import { icons } from "@/components/icons";
 import { sentimentColumns } from "@/components/ui/sentimentColumns";
 import { type SentimentColumn } from "@/types/sentimentColums";
-import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 
 export default function DashboardPage() {
   const location = useLocation();
-  const navigate = useNavigate();
+
   const apiResponse: any[] = useMemo(
     () => location.state?.apiResponse?.results || [],
     [location.state]
   );
-  // Use state to manage the data displayed in the dashboard
+
   const [sentimentColumnsData, setSentimentColumnsData] = useState<
     SentimentColumn[]
   >([]);
@@ -23,66 +22,72 @@ export default function DashboardPage() {
     const token = localStorage.getItem("access_token");
 
     if (!token) {
-      console.log("No access token found. Redirecting to login.");
-      navigate("/login");
-      throw new Error("Authentication required.");
+      console.log("No token: guest mode, skip DB fetch.");
+      return null;
     }
 
-    const res = await fetch("http://127.0.0.1:8000/userinput", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (res.status === 401) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-      navigate("/login");
-      throw new Error(
-        "Unauthorized: Access token expired or invalid. Redirecting to login."
-      );
-    }
+    try {
+      const res = await fetch("http://127.0.0.1:8000/userinput", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    return res;
+      if (res.status === 401) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
+        console.warn("Token expired. User will be logged out.");
+        return null;
+      }
+
+      return await res.json();
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      return null;
+    }
   }
 
-  //Loading data
   const loadData = async () => {
     try {
       let rawData: any[] = [];
 
       if (apiResponse && apiResponse.length > 0) {
-        // If data was passed via navigation state, use it directly
+        console.log("Using passed API response (guest or user session)");
         rawData = apiResponse;
-        console.log("Using initial API response from navigation state.");
-        console.log("====Raw Data:", rawData);
-        const columnsData: SentimentColumn[] = rawData.map((item: any) => ({
-          text: item.text,
-          sentiment: item.predicted_label.toString().toLowerCase(),
-          confidence: item.confidence,
-          feedback: item.predicted_label.toString().toLowerCase()
-            ? { type: item.predicted_label.toString().toLowerCase() }
-            : { type: "neutral" },
-        }));
-        setSentimentColumnsData(columnsData);
       } else {
-        // fetch data from the backend (database)
-        console.log("Fetching sentiment results from API...");
-        const response = await fetchSentimentResultsForUser();
-        const data = await response.json();
-        rawData = data.results;
-        console.log("====Raw Data:", rawData);
-        const columnsData: SentimentColumn[] = rawData.map((item: any) => ({
-          text: item.text,
-          sentiment: item.sentiment,
-          confidence: item.confidence,
-          feedback: item.sentiment
-            ? { type: item.sentiment }
-            : { type: "neutral" },
-        }));
-        setSentimentColumnsData(columnsData);
+        const responseData = await fetchSentimentResultsForUser();
+        if (responseData?.results?.length > 0) {
+          rawData = responseData.results;
+          console.log("Loaded sentiment results from DB.");
+        } else {
+          const guestResult = localStorage.getItem("guest_result");
+          if (guestResult) {
+            const parsed = JSON.parse(guestResult);
+            rawData = parsed.results || [];
+          } else {
+            console.log("No data found for user or guest.");
+          }
+        }
       }
+
+      const columnsData: SentimentColumn[] = rawData.map((item: any) => ({
+        text: item.text,
+        sentiment:
+          item.predicted_label?.toLowerCase?.() ??
+          item.sentiment?.toLowerCase?.() ??
+          "neutral",
+        confidence: item.confidence,
+        feedback: {
+          type:
+            item.predicted_label?.toLowerCase?.() ??
+            item.sentiment?.toLowerCase?.() ??
+            "neutral",
+        },
+      }));
+
+      setSentimentColumnsData(columnsData);
     } catch (err: any) {
       console.error("Failed to load sentiment data:", err);
       setSentimentColumnsData([]);
@@ -125,8 +130,6 @@ export default function DashboardPage() {
           itemsPerPage={3}
         />
       </div>
-
-
     </>
   );
 }

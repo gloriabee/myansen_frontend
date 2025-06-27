@@ -5,14 +5,9 @@ import Dropzone from "@/components/ui/dropzone";
 import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-import { LoaderCircle } from "lucide-react";
-import { Send } from "lucide-react";
+import { LoaderCircle, Send } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
-
-
-
-
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -31,7 +26,6 @@ export default function HomePage() {
     console.log("Token", token);
   }, []);
 
-  //Function to handle file contents within multiple files
   const handlefileConents = async (files: File[]): Promise<string[]> => {
     const readFile = (file: File): Promise<string> => {
       return new Promise((resolve, reject) => {
@@ -46,155 +40,118 @@ export default function HomePage() {
     return Promise.all(fileReadPromises);
   };
 
-  //Calling backend API Function
   const callAPI = async (data: any) => {
-    console.log("Calling API with data:", data);
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      console.log("No access token found. Redirecting to login.");
-      navigate("/login");
-       throw new Error("Authentication required.");
-    }
-    
-    try {
-      const res = await fetch("http://127.0.0.1:8000/userinput", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        
+    const token = tokenRef.current;
+
     try {
       const headers: HeadersInit = {
         "Content-Type": "application/json",
       };
-
-      if (tokenRef.current) {
-        headers.Authorization = `Bearer ${tokenRef.current}`;
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
       }
 
-      const res = await fetch("http://127.0.0.1:8000/predict", {
+      const res = await fetch("http://127.0.0.1:8000/userinput", {
         method: "POST",
         headers,
         body: JSON.stringify(data),
       });
-if (res.status === 401) {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("user");
-  navigate("/login");
-  throw new Error(
-    "Unauthorized: Access token expired or invalid. Redirecting to login."
-  );
-}
+
+      if (res.status === 401) {
+        if (token) {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("user");
+          navigate("/login");
+          throw new Error("Unauthorized: Token expired or invalid.");
+        } else {
+          // Guest access - do not redirect
+          const guestResult = await res.json();
+          localStorage.setItem("guest_result", JSON.stringify(guestResult));
+          navigate("/dashboard");
+          return;
+        }
+      }
+
       if (!res.ok) {
         throw new Error("Network response was not ok");
       }
+
       const result = await res.json();
       console.log("API response:", result);
 
-      if (result) {
-        navigate('/dashboard',{state: {apiResponse: result} })
-      }
-      
-    }
-    catch (error) {
-      //console.error("API call failed:", error);
-
-
-      if (!tokenRef.current) {
+      if (token) {
+        navigate("/dashboard", { state: { apiResponse: result } });
+      } else {
         localStorage.setItem("guest_result", JSON.stringify(result));
+        navigate("/dashboard");
       }
-
-      navigate("/dashboard");
     } catch (error) {
       console.error("API call failed:", error);
-
       toast({
         variant: "destructive",
         title: "API Call Failed",
         description: "An error occurred while processing your request.",
       });
-
     }
+  };
 
-  }
-  // Function to handle file deletion
-  const handleDeleteFile = (index: number) => { 
-    setFiles((prevFiles) => 
-      prevFiles.filter((_,i)=> i !== index));
+  const handleDeleteFile = (index: number) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     toast({
       className: "w-[400px] text-left",
       variant: "default",
       title: "File Deleted",
       description: "The file has been successfully deleted.",
       duration: 2000,
-    
     });
-  }
-
   };
-
 
   const handleAnalyze = async () => {
     setIsLoading(true);
 
-    // Validate content and files
     if (!content && files.length === 0) {
       toast({
         className: "w-[400px] text-left",
         variant: "destructive",
         title: "No content provided",
         description: "Please enter text or upload files to analyze.",
-
         duration: 2000,
-
       });
       setIsLoading(false);
       return;
     }
+
     let fileContents: string[] = [];
     if (files.length > 0) {
       fileContents = await handlefileConents(files);
     }
 
-    // Simulate an API call
-    // Now, use the array of escaped strings in your data object
     const data = {
       text: content,
-      uploadedFiles: fileContents, 
+      uploadedFiles: fileContents,
     };
+
     await callAPI(data);
-
-
-    // Removed redundant `if (isLoading)` check.
-
-    setTimeout(() => {
-      setIsLoading(false);
-
-    }, 3000);
-  }
+    setTimeout(() => setIsLoading(false), 3000);
+  };
 
   return (
     <>
       {isLoading ? (
-        <>
-          <div className="flex flex-col gap-4 justify-center items-center mt-8 mb-4">
-            <div className="rounded-lg w-[400px] flex items-center place-content-center justify-center gap-2">
-              <Skeleton className="h-8 w-28" />
-              <Skeleton className="h-8 w-28" />
-            </div>
-            <div className="border-dashed border-2 border-gray-200 rounded-lg w-[400px] h-48 flex flex-col items-center place-content-center justify-center gap-2">
-              <Skeleton className="h-6 w-32" />
-              {/* For "Upload files" text/icon */}
-              <Skeleton className="h-4 w-48" />
-              {/* For "Max. file size: 10.00 MB" */}
-            </div>
+        <div className="flex flex-col gap-4 justify-center items-center mt-8 mb-4">
+          <div className="rounded-lg w-[400px] flex items-center justify-center gap-2">
+            <Skeleton className="h-8 w-28" />
+            <Skeleton className="h-8 w-28" />
           </div>
-          <div className="flex  items-center justify-center m-7">
+          <div className="border-dashed border-2 border-gray-200 rounded-lg w-[400px] h-48 flex flex-col items-center justify-center gap-2">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+          <div className="flex items-center justify-center m-7">
             <LoaderCircle className="animate-spin h-6 w-6 text-black" />
             <span className="ml-2 text-2xl">Analyzing...</span>
           </div>
-        </>
+        </div>
       ) : (
         <>
           <div className="grid w-full place-content-center gap-4 mt-8 mb-4">
@@ -226,11 +183,10 @@ if (res.status === 401) {
                 <Dropzone
                   dropZoneClassName="h-48"
                   accept={{ "text/csv": [".csv"], "text/plain": [".txt"] }}
-                  maxSize={10 * 1024 * 1024} // 10 MB
+                  maxSize={10 * 1024 * 1024}
                   initialFiles={files}
                   onDeletedfile={handleDeleteFile}
                   onDropAccepted={(acceptedFiles) => {
-                    acceptedFiles.map((file) => file.name).join(", ");
                     setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
                   }}
                   onDropRejected={(fileRejections) => {
@@ -258,7 +214,6 @@ if (res.status === 401) {
           </Button>
         </>
       )}
-       
     </>
   );
 }
