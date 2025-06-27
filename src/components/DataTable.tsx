@@ -56,6 +56,7 @@ export function DataTable<TData, TValue>({
    });
   //Function for changing page number
   const handlePageChange = (page: number) => {
+    
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     } else setCurrentPage(1);
@@ -113,8 +114,7 @@ export function DataTable<TData, TValue>({
                 let sentimentScore: number = row.getValue(
                   "confidence"
                 ) as number;
-                const shouldHighlight = sentimentScore <= 0.6;
-                let text: string = row.getValue("text") as string;
+                const shouldHighlight = sentimentScore <= 0.4;
 
                 return (
                   <TableRow
@@ -152,6 +152,7 @@ export function DataTable<TData, TValue>({
         <PaginationContent className="flex">
           <PaginationItem>
             <PaginationPrevious
+              href="#"
               onClick={() => {
                 handlePageChange(currentPage - 1);
               }}
@@ -163,7 +164,7 @@ export function DataTable<TData, TValue>({
           {displayPage().map((page) => (
             <PaginationItem key={page}>
               <PaginationLink
-                href="#"
+                href=""
                 onClick={() => {
                   handlePageChange(page);
                 }}
