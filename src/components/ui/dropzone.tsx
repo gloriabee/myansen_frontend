@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { cn } from "@/lib/utils";
 import truncate from "truncate";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Typescript:
 import {
@@ -18,6 +19,7 @@ export interface DropzoneProps extends Omit<_DropzoneProps, "children"> {
   children?: (dropzone: DropzoneState) => React.ReactNode;
   showFilesList?: boolean;
   showErrorMessage?: boolean;
+  initialFiles?: File[];
 }
 
 // Functions:
@@ -106,6 +108,7 @@ const Dropzone = ({
   children,
   showFilesList = true,
   showErrorMessage = true,
+  initialFiles = [],
   ...props
 }: DropzoneProps) => {
   // Constants:
@@ -132,7 +135,7 @@ const Dropzone = ({
   });
 
   // State:
-  const [filesUploaded, setFilesUploaded] = useState<File[]>([]);
+  const [filesUploaded, setFilesUploaded] = useState<File[]>(initialFiles);
   const [errorMessage, setErrorMessage] = useState<string>();
 
   // Functions:
@@ -175,46 +178,49 @@ const Dropzone = ({
         <span className="text-xs text-red-600 mt-3">{errorMessage}</span>
       )}
       {showFilesList && filesUploaded.length > 0 && (
-        <div
-          className={`flex flex-col gap-2 w-full ${
-            filesUploaded.length > 2 ? "h-48" : "h-fit"
-          } mt-2 ${filesUploaded.length > 0 ? "pb-2" : ""}`}
-        >
-          <div className="w-full">
-            {filesUploaded.map((fileUploaded, index) => (
-              <div
-                key={index}
-                className="flex justify-between items-center flex-row w-full h-16 mt-2 px-4 border-solid border-2 border-gray-200 rounded-lg shadow-sm"
-              >
-                <div className="flex items-center flex-row gap-4 h-full">
-                  {fileUploaded.type === "application/pdf" ? (
-                    <PDF className="text-rose-700 w-6 h-6" />
-                  ) : (
-                    <Image className="text-rose-700 w-6 h-6" />
-                  )}
-                  <div className="flex flex-col gap-0">
-                    <div className="text-[0.85rem] font-medium leading-snug">
-                      {truncate(
-                        fileUploaded.name.split(".").slice(0, -1).join("."),
-                        30
-                      )}
-                    </div>
-                    <div className="text-[0.7rem] text-gray-500 leading-tight">
-                      .{fileUploaded.name.split(".").pop()} •{" "}
-                      {(fileUploaded.size / (1024 * 1024)).toFixed(2)} MB
+        <ScrollArea className="h-72 w-full rounded-md border-t-4 border-teal-600 ">
+         
+          <div
+            className={`flex flex-col gap-2 w-full ${
+              filesUploaded.length > 2 ? "h-48" : "h-fit"
+            } mt-2 ${filesUploaded.length > 0 ? "pb-2" : ""}`}
+          >
+            <div className="w-full">
+              {filesUploaded.map((fileUploaded, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center flex-row w-full h-16 mt-2 px-4 border-solid border-2 border-gray-200 rounded-lg shadow-sm"
+                >
+                  <div className="flex items-center flex-row gap-4 h-full">
+                    {fileUploaded.type === "application/pdf" ? (
+                      <PDF className="text-rose-700 w-6 h-6" />
+                    ) : (
+                      <Image className="text-rose-700 w-6 h-6" />
+                    )}
+                    <div className="flex flex-col gap-0">
+                      <div className="text-[0.85rem] font-medium leading-snug">
+                        {truncate(
+                          fileUploaded.name.split(".").slice(0, -1).join("."),
+                          30
+                        )}
+                      </div>
+                      <div className="text-[0.7rem] text-gray-500 leading-tight">
+                        .{fileUploaded.name.split(".").pop()} •{" "}
+                        {(fileUploaded.size / (1024 * 1024)).toFixed(2)} MB
+                      </div>
                     </div>
                   </div>
+                  <div
+                    className="p-2 rounded-full border-solid border-2 border-gray-100 shadow-sm hover:bg-accent transition-all select-none cursor-pointer"
+                    onClick={() => deleteUploadedFile(index)}
+                  >
+                    <Trash className="w-4 h-4" />
+                  </div>
                 </div>
-                <div
-                  className="p-2 rounded-full border-solid border-2 border-gray-100 shadow-sm hover:bg-accent transition-all select-none cursor-pointer"
-                  onClick={() => deleteUploadedFile(index)}
-                >
-                  <Trash className="w-4 h-4" />
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        </ScrollArea>
       )}
     </div>
   );

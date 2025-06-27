@@ -1,23 +1,42 @@
-import React, { useState } from "react";
-
-
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import AuthDropDown from "./auth/AuthDropDown";
+import type { User } from "@/types/User";
+// import { UserData } from "@/configs/user";
 interface NavItem {
   label: string;
-  link: string; 
-  icon?: string; 
-  subItems?: NavItem[]; 
+  link: string;
+  icon?: string;
+  subItems?: NavItem[];
 }
 
 interface NavBarProps {
   logoText: string;
   navItems: NavItem[];
+  // user?: User | null;
 }
 
-const NavBar = ({ logoText, navItems } : NavBarProps) => {
+const NavBar = ({ logoText, navItems }: NavBarProps) => {
   const [isMobileViewOpen, setMobileViewOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    // Listen for login/logout events
+    const handleUserChange = () => {
+      const updatedUser = localStorage.getItem("user");
+      setUser(updatedUser ? JSON.parse(updatedUser) : null);
+    };
+
+    window.addEventListener("userChanged", handleUserChange);
+    return () => window.removeEventListener("userChanged", handleUserChange);
+  }, []);
 
   return (
-    <nav className="bg-teal-700 p-4 shadow-md rounded-tl-lg rounded-tr-lg mt-6"> 
+    <nav className="bg-teal-700 p-4 shadow-md ">
       <div className="container mx-auto flex justify-between items-center text-white">
         {/* Logo/Brand Name */}
         <a href="/" className="text-xl font-bold">
@@ -28,8 +47,8 @@ const NavBar = ({ logoText, navItems } : NavBarProps) => {
         <div className="hidden md:flex space-x-6">
           {navItems.map((item, index) => (
             <div key={index} className="relative group">
-              <a
-                href={item.link}
+              <Link
+                to={item.link}
                 className="hover:text-teal-200 transition-colors duration-200 cursor-pointer flex items-center" // Added flex items-center for icon alignment
               >
                 {item.icon && (
@@ -57,16 +76,16 @@ const NavBar = ({ logoText, navItems } : NavBarProps) => {
                     ></path>
                   </svg>
                 )}
-              </a>
+              </Link>
 
               {/* Desktop Sub-items (Dropdown) */}
               {item.subItems && (
                 <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
                   {item.subItems?.map((subItem, subindex) => (
-                    <a
+                    <Link
                       key={subindex}
-                      href={subItem.link}
-                      className="block px-4 py-2 text-gray-800 hover:bg-gray-100 hover:rounded-md flex items-center" // Added flex items-center
+                      to={subItem.link}
+                      className="px-4 py-2 text-gray-800 hover:bg-gray-100 hover:rounded-md flex items-center" // Added flex items-center
                     >
                       {subItem.icon && (
                         <img
@@ -76,12 +95,14 @@ const NavBar = ({ logoText, navItems } : NavBarProps) => {
                         />
                       )}
                       {subItem.label}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               )}
             </div>
           ))}
+
+          <AuthDropDown user={user} />
         </div>
 
         {/* Mobile Menu Button (Hamburger/Close Icon) */}
@@ -126,7 +147,7 @@ const NavBar = ({ logoText, navItems } : NavBarProps) => {
                 {" "}
                 <a
                   href={item.link}
-                  className="block text-white px-4 py-2 hover:bg-teal-800 transition-colors duration-200 flex items-center"
+                  className=" text-white px-4 py-2 hover:bg-teal-800 transition-colors duration-200 flex items-center"
                   onClick={() => setMobileViewOpen(false)}
                 >
                   {item.icon && (
@@ -141,10 +162,10 @@ const NavBar = ({ logoText, navItems } : NavBarProps) => {
                 {item.subItems && (
                   <div className="pl-6 bg-teal-800">
                     {item.subItems.map((subItem, subIndex) => (
-                      <a
+                      <Link
                         key={subIndex}
-                        href={subItem.link}
-                        className="block text-white px-4 py-2 hover:bg-teal-800 transition-colors duration-200 text-sm flex items-center" // Added flex items-center
+                        to={subItem.link}
+                        className=" text-white px-4 py-2 hover:bg-teal-800 transition-colors duration-200 text-sm flex items-center" // Added flex items-center
                         onClick={() => setMobileViewOpen(false)}
                       >
                         {subItem.icon && (
@@ -155,7 +176,7 @@ const NavBar = ({ logoText, navItems } : NavBarProps) => {
                           />
                         )}
                         {subItem.label}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 )}
