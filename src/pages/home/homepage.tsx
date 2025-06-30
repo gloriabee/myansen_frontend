@@ -9,6 +9,12 @@ import { LoaderCircle, Send } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
 
+import {
+  breakMyanmarSyllables,
+  countMyanmarSyllables,
+} from "@/utils/breakSyllable";
+import { isMyanmarText } from "@/utils/checkMyanmar";
+
 export default function HomePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -108,13 +114,46 @@ export default function HomePage() {
 
   const handleAnalyze = async () => {
     setIsLoading(true);
-
-    if (!content && files.length === 0) {
+    // console.log(breakMyanmarSyllables(content));
+    // console.log(countMyanmarSyllables(content));
+    if (isMyanmarText(content)) {
+      if (!content && files.length === 0) {
+        toast({
+          className: "w-[400px] text-left",
+          variant: "destructive",
+          title: "No content provided",
+          description: "Please enter text or upload files to analyze.",
+          duration: 2000,
+        });
+        setIsLoading(false);
+        return;
+      } else if (countMyanmarSyllables(content) > 100) {
+        toast({
+          className: "w-[400px] text-left",
+          variant: "destructive",
+          title: "Exceeds Content",
+          description: "Maximum Characters is 100",
+          duration: 2000,
+        });
+        setIsLoading(false);
+        return;
+      } else if (files.length > 20) {
+        toast({
+          className: "w-[400px] text-left",
+          variant: "destructive",
+          title: "Exceeds Content",
+          description: "“Too much files!System accepts maximum 20 files.",
+          duration: 2000,
+        });
+        setIsLoading(false);
+        return;
+      }
+    } else {
       toast({
         className: "w-[400px] text-left",
         variant: "destructive",
-        title: "No content provided",
-        description: "Please enter text or upload files to analyze.",
+        title: "Language Unavailable",
+        description: "Please Enter only Myanmar text",
         duration: 2000,
       });
       setIsLoading(false);
