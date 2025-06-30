@@ -23,9 +23,6 @@ import { GoogleLogin } from "@react-oauth/google";
 
 import { handleGoogleLogin } from "@/utils/googleAuth";
 
-import { jwtDecode } from "jwt-decode";
-
-
 // Validation schema
 const registerSchema = z
   .object({
@@ -183,9 +180,7 @@ export function RegisterForm({
             <div className="flex justify-center">
               <GoogleLogin
                 onSuccess={(credentialResponse) => {
-
                   handleGoogleLogin(credentialResponse.credential, navigate);
-
                 }}
                 onError={() => console.log("Login Failed")}
                 auto_select={true}

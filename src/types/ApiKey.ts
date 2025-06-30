@@ -1,6 +1,7 @@
 export type ApiKey = {
-  id: string; 
-  name: string;
-  created: Date;
-  lastUsed: Date;
+  key_name: string;
+  public_key: string;
+  hash_key: string;
+  
+
 };

@@ -3,6 +3,7 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  TableMeta,
   useReactTable,
 } from "@tanstack/react-table";
 import {
@@ -29,6 +30,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   noCase?: string; // Optional prop for no data case
   itemsPerPage?: number; 
+  onFetchData?: () => Promise<void>;
 }
 
 export function DataTable<TData, TValue>({
@@ -36,6 +38,7 @@ export function DataTable<TData, TValue>({
   data,
   noCase = "No data available", 
   itemsPerPage = 3, // Default items per page
+  onFetchData,
 }: DataTableProps<TData, TValue>) {
 
   //Pagination State
@@ -53,6 +56,10 @@ export function DataTable<TData, TValue>({
      data: paginatedData,
      columns,
      getCoreRowModel: getCoreRowModel(),
+     meta: { 
+        onApiKeysUpdated: onFetchData, 
+    } , 
+
    });
   //Function for changing page number
   const handlePageChange = (page: number) => {
