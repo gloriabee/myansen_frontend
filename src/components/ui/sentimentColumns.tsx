@@ -82,8 +82,8 @@ export const sentimentColumns: ColumnDef<SentimentColumn>[] = [
     header: "Feedback",
     cell: ({ row }) => {
       const defaultValue = row.getValue("sentiment") as string;
-      const id = 1; // assumes SentimentColumn has an `id` field
-      console.log(">>>>> DefaultValue :" ,defaultValue);
+      const id = "1"; // assumes SentimentColumn has an `id` field
+     
       
       return (
         <FeedbackCell

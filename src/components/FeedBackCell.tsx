@@ -17,8 +17,8 @@ export function FeedbackCell({
   const normalizedDefault = defaultValue.toLowerCase();
   const [selectedValue, setSelectedValue] = useState(normalizedDefault);
 
-  console.log(">>>>>> DefaultValue:", defaultValue);
-  console.log(">>>>>> Selected Value:", selectedValue);
+  // console.log(">>>>>> DefaultValue:", defaultValue);
+  // console.log(">>>>>> Selected Value:", selectedValue);
 
   return (
     <div className="inline-block">
