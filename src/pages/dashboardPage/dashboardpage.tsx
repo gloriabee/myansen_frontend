@@ -42,13 +42,14 @@ export default function DashboardPage() {
         return null;
       }
 
-      return await res.json();
+      return res;
     } catch (err) {
       console.error("Error fetching user data:", err);
       return null;
     }
   }
 
+  // Function to fetch all sentiment results for the user from DB
   const loadData = async () => {
     try {
       let rawData: any[] = [];
@@ -60,7 +61,7 @@ export default function DashboardPage() {
         const responseData = await fetchSentimentResultsForUser();
         if (responseData?.results?.length > 0) {
           rawData = responseData.results;
-          console.log("Loaded sentiment results from DB.");
+          console.log(">>> Loaded sentiment results from DB.");
         } else {
           const guestResult = localStorage.getItem("guest_result");
           if (guestResult) {

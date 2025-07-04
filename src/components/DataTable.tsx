@@ -77,9 +77,8 @@ export function DataTable<TData, TValue>({
         pages.push(i); //1,2,3
       }
       return pages;
-    } else {
-// Removed unnecessary console.log statement
-
+    }
+    else {
       const startPage = Math.max(1, currentPage - 1); //1
       const endPage = Math.min(totalPages, startPage + maxPage - 1); //3
       for (let i = startPage; i <= endPage; i++) {
@@ -154,53 +153,60 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <Pagination className="mt-5 flex justify-end mb-3">
-        <PaginationContent className="flex">
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={() => {
-                handlePageChange(currentPage - 1);
-              }}
-              className={
-                currentPage === 1 ? "pointer-events-none opacity-50" : ""
-              }
-            />
-          </PaginationItem>
-          {displayPage().map((page) => (
-            <PaginationItem key={page}>
-              <PaginationLink
-                href=""
-                onClick={() => {
-                  handlePageChange(page);
-                }}
-                className={currentPage === page ? "bg-teal-600 text-white" : ""}
-              >
-                {page}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-          {/* Show ellipsis if there are more pages */}
-          {totalPages > 3 && currentPage < totalPages - 1 && (
+      {paginatedData.length > 0 && (
+        <Pagination className="mt-5 flex justify-end mb-3">
+          <PaginationContent className="flex">
             <PaginationItem>
-              <PaginationEllipsis />
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage - 1);
+                }}
+                className={
+                  currentPage === 1  || paginatedData.length == 0 ? "pointer-events-none opacity-50" : ""
+                }
+              />
             </PaginationItem>
-          )}
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={() => {
-                handlePageChange(currentPage + 1);
-              }}
-              className={
-                currentPage === totalPages
-                  ? "pointer-events-none opacity-50"
-                  : ""
-              }
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            {displayPage().map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(page);
+                  }}
+                  className={
+                    currentPage === page ? "bg-teal-600 text-white" : ""
+                  }
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            {/* Show ellipsis if there are more pages */}
+            {totalPages > 3 && currentPage < totalPages - 1 && (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            )}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage + 1);
+                }}
+                className={
+                  currentPage === totalPages || paginatedData.length == 0
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }

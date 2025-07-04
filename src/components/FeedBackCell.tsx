@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,10 @@ export function FeedbackCell({
   const normalizedDefault = defaultValue.toLowerCase();
   const [selectedValue, setSelectedValue] = useState(normalizedDefault);
 
-  // console.log(">>>>>> DefaultValue:", defaultValue);
-  // console.log(">>>>>> Selected Value:", selectedValue);
+
+  useEffect(() => {
+    setSelectedValue(normalizedDefault);
+  }, [normalizedDefault]);
 
   return (
     <div className="inline-block">
