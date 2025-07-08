@@ -1,10 +1,20 @@
+import { useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { icons } from "@/components/icons";
 import { sentimentColumns } from "@/components/ui/sentimentColumns";
 import { type SentimentColumn } from "@/types/sentimentColums";
-import { useLocation } from "react-router-dom";
-import { useEffect, useState, useMemo } from "react";
+import { icons } from "@/components/icons";
+import WordCloudSVG from "@/components/WordCloudSVG";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function DashboardPage() {
   const location = useLocation();
@@ -17,6 +27,9 @@ export default function DashboardPage() {
   const [sentimentColumnsData, setSentimentColumnsData] = useState<
     SentimentColumn[]
   >([]);
+  const [selectedType, setSelectedType] = useState<"positive" | "negative">(
+    "positive"
+  );
 
   async function fetchSentimentResultsForUser() {
     const token = localStorage.getItem("access_token");
@@ -42,14 +55,13 @@ export default function DashboardPage() {
         return null;
       }
 
-      return res;
+      return res.json();
     } catch (err) {
       console.error("Error fetching user data:", err);
       return null;
     }
   }
 
-  // Function to fetch all sentiment results for the user from DB
   const loadData = async () => {
     try {
       let rawData: any[] = [];
@@ -61,14 +73,13 @@ export default function DashboardPage() {
         const responseData = await fetchSentimentResultsForUser();
         if (responseData?.results?.length > 0) {
           rawData = responseData.results;
-          console.log(">>> Loaded sentiment results from DB.");
         } else {
           const guestResult = localStorage.getItem("guest_result");
           if (guestResult) {
             const parsed = JSON.parse(guestResult);
             rawData = parsed.results || [];
           } else {
-            console.log("No data found for user or guest.");
+            console.log("No data found.");
           }
         }
       }
@@ -99,13 +110,48 @@ export default function DashboardPage() {
     loadData();
   }, [apiResponse]);
 
+  useEffect(() => {
+    console.log("Sentiment data loaded:", sentimentColumnsData);
+  }, [sentimentColumnsData]);
+
+  const positiveText = sentimentColumnsData
+    .filter((item) => item.sentiment?.toLowerCase?.() === "positive")
+    .map((item) => item.text)
+    .join(" ");
+
+  const negativeText = sentimentColumnsData
+    .filter((item) => item.sentiment?.toLowerCase?.() === "negative")
+    .map((item) => item.text)
+    .join(" ");
+
+  const getWordFrequencies = (text: string) => {
+    const words = text
+      .toLowerCase()
+      .replace(/[^\u1000-\u109F\uAA60-\uAA7F\uA9E0-\uA9FF\s]/g, "") // ✅ keep Myanmar chars only
+      .split(/\s+/)
+      .filter((w) => w.length > 1); 
+
+    const freqMap: Record<string, number> = {};
+    for (const word of words) {
+      freqMap[word] = (freqMap[word] || 0) + 1;
+    }
+
+    return Object.entries(freqMap).map(([text, value]) => ({ text, value }));
+  };
+
+  const wordFreq =
+    selectedType === "positive"
+      ? getWordFrequencies(positiveText)
+      : getWordFrequencies(negativeText);
+
+  console.log("Word Frequencies for", selectedType, wordFreq);
   const noCase =
     "<b>No results yet!</b><br> Upload a file or paste text in the 'File Upload' tab to see sentiment analysis results here</br > ";
 
   return (
     <>
       <div className="mx-3 py-5 flex justify-between">
-        <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+        <h2 className="text-3xl font-semibold tracking-tight">
           Sentiment Dashboard
         </h2>
         <div>
@@ -115,7 +161,7 @@ export default function DashboardPage() {
           </Button>
           <Button
             variant="outline"
-            className="outline text-teal-600 hover:bg-teal-600 hover:text-white ml-4"
+            className="ml-4 text-teal-600 hover:bg-teal-600 hover:text-white"
           >
             <icons.loop className="mr-2" />
             Retrain Model
@@ -123,13 +169,54 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div>
-        <DataTable
-          columns={sentimentColumns}
-          data={sentimentColumnsData}
-          noCase={noCase}
-          itemsPerPage={3}
-        />
+      <DataTable
+        columns={sentimentColumns}
+        data={sentimentColumnsData}
+        noCase={noCase}
+        itemsPerPage={3}
+      />
+
+      <div className="mx-3 py-5">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="bg-teal-700 text-white hover:bg-teal-600">
+              View Wordclouds
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Wordcloud Viewer</DialogTitle>
+              <div className="pt-4">
+                <div className="mb-4 flex items-center gap-2">
+                  <label className="font-medium" htmlFor="type">
+                    Select Sentiment:
+                  </label>
+                  <select
+                    id="type"
+                    value={selectedType}
+                    onChange={(e) =>
+                      setSelectedType(e.target.value as "positive" | "negative")
+                    }
+                    className="border border-gray-300 rounded px-2 py-1"
+                  >
+                    <option value="positive">Positive</option>
+                    <option value="negative">Negative</option>
+                  </select>
+                </div>
+
+                {wordFreq.length > 0 ? (
+                  <div className="h-[400px]">
+                    <WordCloudSVG words={wordFreq} />
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    No data to display for this sentiment.
+                  </p>
+                )}
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );
