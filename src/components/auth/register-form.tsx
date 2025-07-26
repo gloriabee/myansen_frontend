@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import {
   Link,
   // useSubmit,
@@ -54,6 +55,7 @@ export function RegisterForm({
   });
 
   const navigate = useNavigate();
+  const { toast } = useToast();
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     try {
       const response = await fetch("http://localhost:8000/register", {
@@ -72,6 +74,11 @@ export function RegisterForm({
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error("Registration error:", error.message);
+        toast({
+          variant: "destructive",
+          title: "Registration Failed",
+          description: error.message,
+        });
       } else {
         console.error("Registration error:", error);
       }
