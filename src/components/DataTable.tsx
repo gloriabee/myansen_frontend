@@ -1,4 +1,3 @@
-
 import {
   ColumnDef,
   flexRender,
@@ -22,47 +21,44 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useState, useMemo} from "react";
+import { useState, useMemo } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   noCase?: string; // Optional prop for no data case
-  itemsPerPage?: number; 
+  itemsPerPage?: number;
   onFetchData?: () => Promise<void>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  noCase = "No data available", 
+  noCase = "No data available",
   itemsPerPage = 3, // Default items per page
   onFetchData,
 }: DataTableProps<TData, TValue>) {
-
   //Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
- 
+
   //Slice the data for pagination
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage; // 0
-    return data.slice(startIndex, startIndex + itemsPerPage);//(0,3)=> [0,1,2]
+    return data.slice(startIndex, startIndex + itemsPerPage); //(0,3)=> [0,1,2]
   }, [data, currentPage, itemsPerPage]);
 
   //Table Setup
-   const table = useReactTable({
-     data: paginatedData,
-     columns,
-     getCoreRowModel: getCoreRowModel(),
-     meta: { 
-        onApiKeysUpdated: onFetchData, 
-    } , 
-
-   });
+  const table = useReactTable({
+    data: paginatedData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    meta: {
+      onApiKeysUpdated: onFetchData,
+    },
+  });
   //Function for changing page number
   const handlePageChange = (page: number) => {
-    
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
     } else setCurrentPage(1);
@@ -77,8 +73,7 @@ export function DataTable<TData, TValue>({
         pages.push(i); //1,2,3
       }
       return pages;
-    }
-    else {
+    } else {
       const startPage = Math.max(1, currentPage - 1); //1
       const endPage = Math.min(totalPages, startPage + maxPage - 1); //3
       for (let i = startPage; i <= endPage; i++) {
@@ -164,7 +159,9 @@ export function DataTable<TData, TValue>({
                   handlePageChange(currentPage - 1);
                 }}
                 className={
-                  currentPage === 1  || paginatedData.length == 0 ? "pointer-events-none opacity-50" : ""
+                  currentPage === 1 || paginatedData.length == 0
+                    ? "pointer-events-none opacity-50"
+                    : ""
                 }
               />
             </PaginationItem>

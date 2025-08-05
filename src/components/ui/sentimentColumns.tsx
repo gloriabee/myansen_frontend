@@ -69,11 +69,19 @@ export const sentimentColumns: ColumnDef<SentimentColumn>[] = [
     header: "Confidence",
     cell: ({ row }) => {
       const confidence: number = row.getValue("confidence") as number;
-      const fixedscore = (confidence * 100).toFixed(2);
+      const fixedscore = Math.round(confidence * 100);
+      let label = "";
+      if (fixedscore <= 25) label = "Poor";
+      else if (fixedscore <= 50) label = "Normal";
+      else if (fixedscore <= 75) label = "Good";
+      else label = "Excellent";
       return (
-        <Badge variant={"secondary"} className="hover:cursor-default">
-          {fixedscore}%
-        </Badge>
+        <div>
+          <Badge variant={"secondary"} className="hover:cursor-default mb-2">
+            {fixedscore}%
+          </Badge>
+          <p>{label}</p>
+        </div>
       );
     },
   },
@@ -83,8 +91,7 @@ export const sentimentColumns: ColumnDef<SentimentColumn>[] = [
     cell: ({ row }) => {
       const defaultValue = row.getValue("sentiment") as string;
       const id = "1"; // assumes SentimentColumn has an `id` field
-     
-      
+
       return (
         <FeedbackCell
           id={id}
