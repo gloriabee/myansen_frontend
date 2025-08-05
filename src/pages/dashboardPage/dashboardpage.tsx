@@ -5,6 +5,7 @@ import { sentimentColumns } from "@/components/ui/sentimentColumns";
 import { type SentimentColumn } from "@/types/sentimentColums";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
+import { handleExport } from "@/utils/exportFile";
 
 export default function DashboardPage() {
   const location = useLocation();
@@ -109,7 +110,10 @@ export default function DashboardPage() {
           Sentiment Dashboard
         </h2>
         <div>
-          <Button className="bg-teal-700 text-white hover:bg-teal-600">
+          <Button
+            onClick={() => handleExport(sentimentColumnsData)}
+            className="bg-teal-700 text-white hover:bg-teal-600"
+          >
             <icons.export className="mr-2" />
             Export Data
           </Button>
