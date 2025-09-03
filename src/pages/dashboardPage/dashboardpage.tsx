@@ -27,9 +27,9 @@ export default function DashboardPage() {
   const [sentimentColumnsData, setSentimentColumnsData] = useState<
     SentimentColumn[]
   >([]);
-  const [selectedType, setSelectedType] = useState<"positive" | "negative">(
-    "positive"
-  );
+  const [selectedType, setSelectedType] = useState<
+    "positive" | "negative" | "neutral"
+  >("positive");
 
   async function fetchSentimentResultsForUser() {
     const token = localStorage.getItem("access_token");
@@ -124,12 +124,16 @@ export default function DashboardPage() {
     .map((item) => item.text)
     .join(" ");
 
+  const neutralText = sentimentColumnsData
+    .filter((item) => item.sentiment?.toLowerCase?.() == "negative")
+    .map((item) => item.text)
+    .join(" ");
   const getWordFrequencies = (text: string) => {
     const words = text
       .toLowerCase()
       .replace(/[^\u1000-\u109F\uAA60-\uAA7F\uA9E0-\uA9FF\s]/g, "") // ✅ keep Myanmar chars only
       .split(/\s+/)
-      .filter((w) => w.length > 1); 
+      .filter((w) => w.length > 1);
 
     const freqMap: Record<string, number> = {};
     for (const word of words) {
@@ -138,13 +142,14 @@ export default function DashboardPage() {
 
     return Object.entries(freqMap).map(([text, value]) => ({ text, value }));
   };
+  let wordFreq;
+  if (selectedType === "positive") {
+    wordFreq = getWordFrequencies(positiveText);
+  } else if (selectedType === "negative") {
+    wordFreq = getWordFrequencies(negativeText);
+  } else if (selectedType === "neutral")
+    wordFreq = getWordFrequencies(neutralText);
 
-  const wordFreq =
-    selectedType === "positive"
-      ? getWordFrequencies(positiveText)
-      : getWordFrequencies(negativeText);
-
-  console.log("Word Frequencies for", selectedType, wordFreq);
   const noCase =
     "<b>No results yet!</b><br> Upload a file or paste text in the 'File Upload' tab to see sentiment analysis results here</br > ";
 
@@ -183,7 +188,7 @@ export default function DashboardPage() {
               View Wordclouds
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl">
+          <DialogContent className="max-w-xl max-h-2xl">
             <DialogHeader>
               <DialogTitle>Wordcloud Viewer</DialogTitle>
               <div className="pt-4">
@@ -195,17 +200,20 @@ export default function DashboardPage() {
                     id="type"
                     value={selectedType}
                     onChange={(e) =>
-                      setSelectedType(e.target.value as "positive" | "negative")
+                      setSelectedType(
+                        e.target.value as "positive" | "negative" | "neutral"
+                      )
                     }
                     className="border border-gray-300 rounded px-2 py-1"
                   >
                     <option value="positive">Positive</option>
                     <option value="negative">Negative</option>
+                    <option value="neutral">Neutral</option>
                   </select>
                 </div>
 
                 {wordFreq.length > 0 ? (
-                  <div className="h-[400px]">
+                  <div className="w-full h-[60vh] flex items-center justify-center bg-gray-50 rounded-lg shadow-inner">
                     <WordCloudSVG words={wordFreq} />
                   </div>
                 ) : (
