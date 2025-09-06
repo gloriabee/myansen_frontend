@@ -114,7 +114,7 @@ export function DataTable<TData, TValue>({
                 let sentimentScore: number = row.getValue(
                   "confidence"
                 ) as number;
-                const shouldHighlight = sentimentScore <= 0.4;
+                const shouldHighlight = sentimentScore <= 0.6;
 
                 return (
                   <TableRow

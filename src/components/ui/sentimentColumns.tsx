@@ -7,7 +7,12 @@ import { Badge } from "./badge";
 import { useState } from "react";
 import { FeedbackCell } from "@/components/FeedBackCell";
 
-export const sentimentColumns: ColumnDef<SentimentColumn>[] = [
+
+
+
+export const sentimentColumns = (
+  handleSubmitFeedback?: (rowId: string, value: string) => void
+): ColumnDef<SentimentColumn>[] => [
   {
     id: "text",
     accessorKey: "text",
@@ -19,7 +24,7 @@ export const sentimentColumns: ColumnDef<SentimentColumn>[] = [
 
       if (isLowConfidence) {
         return (
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start  ">
             <span className="text-black text-left text-wrap">
               {row.getValue("text")}
             </span>
@@ -90,16 +95,18 @@ export const sentimentColumns: ColumnDef<SentimentColumn>[] = [
     header: "Feedback",
     cell: ({ row }) => {
       const defaultValue = row.getValue("sentiment") as string;
-      const id = "1"; // assumes SentimentColumn has an `id` field
+      const id = row.original.id as string;
+  
+      
 
       return (
         <FeedbackCell
           id={id}
           defaultValue={defaultValue}
           onSubmit={(id, value) => {
-            alert(`Feedback for row ${id}: ${value}`);
-            // optional: call API here
+            handleSubmitFeedback?.(id, value);
           }}
+          isLowConfidence={(row.getValue("confidence") as number) <= 0.6}
         />
       );
     },
