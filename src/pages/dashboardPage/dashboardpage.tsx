@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { icons } from "@/components/icons";
 import { sentimentColumns } from "@/components/ui/sentimentColumns";
 import { type SentimentColumn } from "@/types/sentimentColums";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   processUploadingDataSetToS3,
@@ -11,9 +11,16 @@ import {
   noCase,
 } from "@/utils/dashboardPageUtils";
 import { ProgressGame } from "@/components/ui/progress";
-import { handleExport } from "@/utils/exportFile";
+import { handleExportCSV, handleExportExcel } from "@/utils/exportFile";
 import { Badge } from "@/components/ui/badge";
 import { v4 as uuid } from "uuid";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@radix-ui/react-dropdown-menu";
+import { User } from "@/types/User";
 
 export default function DashboardPage() {
   const location = useLocation();
@@ -82,7 +89,12 @@ export default function DashboardPage() {
     }
   };
 
+  const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      setUser(JSON.parse(loggedInUser));
+    }
     loadData();
   }, [apiResponse]);
 
@@ -114,28 +126,39 @@ export default function DashboardPage() {
   return (
     <>
       <div className="mx-3 py-5 flex justify-between">
-        {/* <pre>
-          {JSON.stringify(
-            sentimentColumnsData.map((item) => ({
-              id: item.id?.toString() ?? uuid(),
-              text: item.text,
-              feedback: item.feedback?.type,
-            })),
-            null,
-            2
-          )}
-        </pre>  */}
         <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           Sentiment Dashboard
         </h2>
         <div>
-          <Button
-            onClick={() => handleExport(sentimentColumnsData)}
-            className="bg-teal-700 text-white hover:bg-teal-600"
-          >
-            <icons.export className="mr-2" />
-            Export Data
-          </Button>
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-teal-700 text-white hover:bg-teal-600">
+                  <icons.export className="mr-2 h-4 w-4" />
+                  Export Data
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                sideOffset={5}
+                className="w-48 rounded-xl shadow-lg border border-gray-200 bg-white"
+              >
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center px-3 py-1 rounded-md hover:bg-teal-50 focus:bg-teal-100"
+                  onClick={() => handleExportCSV(sentimentColumnsData)}
+                >
+                  Export as CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center px-3 py-1 rounded-md hover:bg-teal-50 focus:bg-teal-100"
+                  onClick={() => handleExportExcel(sentimentColumnsData)}
+                >
+                  Export as Excel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+          </DropdownMenu>
+          )}
+          
           <Button
             variant="outline"
             className="outline relative text-teal-600 hover:bg-teal-600 hover:text-white ml-4"
