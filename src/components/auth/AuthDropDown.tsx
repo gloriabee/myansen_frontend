@@ -29,7 +29,10 @@ const AuthDropDown = ({ user }: UserProps) => {
     );
   }
 
+
+
   const displayName = user?.email?.[0]?.toUpperCase() ?? "?";
+
 
   // google logout function
   function handleLogout() {

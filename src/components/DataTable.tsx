@@ -1,4 +1,3 @@
-
 import {
   ColumnDef,
   flexRender,
@@ -22,38 +21,42 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useState, useMemo} from "react";
+import { useState, useMemo } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   noCase?: string; // Optional prop for no data case
-  itemsPerPage?: number; 
+  itemsPerPage?: number;
+  onFetchData?: () => Promise<void>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  noCase = "No data available", 
+  noCase = "No data available",
   itemsPerPage = 3, // Default items per page
+  onFetchData,
 }: DataTableProps<TData, TValue>) {
-
   //Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(data.length / itemsPerPage);
- 
+
   //Slice the data for pagination
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage; // 0
-    return data.slice(startIndex, startIndex + itemsPerPage);//(0,3)=> [0,1,2]
+    return data.slice(startIndex, startIndex + itemsPerPage); //(0,3)=> [0,1,2]
   }, [data, currentPage, itemsPerPage]);
 
   //Table Setup
-   const table = useReactTable({
-     data: paginatedData,
-     columns,
-     getCoreRowModel: getCoreRowModel(),
-   });
+  const table = useReactTable({
+    data: paginatedData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    meta: {
+      onApiKeysUpdated: onFetchData,
+    },
+  });
   //Function for changing page number
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
@@ -71,8 +74,6 @@ export function DataTable<TData, TValue>({
       }
       return pages;
     } else {
-// Removed unnecessary console.log statement
-
       const startPage = Math.max(1, currentPage - 1); //1
       const endPage = Math.min(totalPages, startPage + maxPage - 1); //3
       for (let i = startPage; i <= endPage; i++) {
@@ -114,7 +115,6 @@ export function DataTable<TData, TValue>({
                   "confidence"
                 ) as number;
                 const shouldHighlight = sentimentScore <= 0.6;
-                let text: string = row.getValue("text") as string;
 
                 return (
                   <TableRow
@@ -148,52 +148,62 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <Pagination className="mt-5 flex justify-end mb-3">
-        <PaginationContent className="flex">
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => {
-                handlePageChange(currentPage - 1);
-              }}
-              className={
-                currentPage === 1 ? "pointer-events-none opacity-50" : ""
-              }
-            />
-          </PaginationItem>
-          {displayPage().map((page) => (
-            <PaginationItem key={page}>
-              <PaginationLink
-                href="#"
-                onClick={() => {
-                  handlePageChange(page);
-                }}
-                className={currentPage === page ? "bg-teal-600 text-white" : ""}
-              >
-                {page}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-          {/* Show ellipsis if there are more pages */}
-          {totalPages > 3 && currentPage < totalPages - 1 && (
+      {paginatedData.length > 0 && (
+        <Pagination className="mt-5 flex justify-end mb-3">
+          <PaginationContent className="flex">
             <PaginationItem>
-              <PaginationEllipsis />
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage - 1);
+                }}
+                className={
+                  currentPage === 1 || paginatedData.length == 0
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
+              />
             </PaginationItem>
-          )}
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={() => {
-                handlePageChange(currentPage + 1);
-              }}
-              className={
-                currentPage === totalPages
-                  ? "pointer-events-none opacity-50"
-                  : ""
-              }
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            {displayPage().map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(page);
+                  }}
+                  className={
+                    currentPage === page ? "bg-teal-600 text-white" : ""
+                  }
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            {/* Show ellipsis if there are more pages */}
+            {totalPages > 3 && currentPage < totalPages - 1 && (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            )}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage + 1);
+                }}
+                className={
+                  currentPage === totalPages || paginatedData.length == 0
+                    ? "pointer-events-none opacity-50"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }

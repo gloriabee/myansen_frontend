@@ -11,6 +11,7 @@ import UniversalErrorPage from "@/pages/ErrorPage/UniversalErrorPage";
 import DashboardPage from "@/pages/dashboardPage/dashboardpage";
 
 import ProtectedRoutes from "@/utils/protectedRoutes";
+import Reset from "./pages/auth/reset";
 
 export const router = createBrowserRouter([
   {
@@ -51,5 +52,9 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/reset",
+    element: <Reset />,
   },
 ]);

@@ -16,7 +16,7 @@ export async function handleGoogleLogin(credential: string, navigate: any) {
     }
 
     const data = await response.json();
-
+      
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("user", JSON.stringify(data.user));
     window.dispatchEvent(new Event("userChanged"));

@@ -10,17 +10,7 @@ import {
   type DropzoneProps as _DropzoneProps,
   type DropzoneState as _DropzoneState,
 } from "react-dropzone";
-
 export interface DropzoneState extends _DropzoneState {}
-
-export interface DropzoneProps extends Omit<_DropzoneProps, "children"> {
-  containerClassName?: string;
-  dropZoneClassName?: string;
-  children?: (dropzone: DropzoneState) => React.ReactNode;
-  showFilesList?: boolean;
-  showErrorMessage?: boolean;
-  initialFiles?: File[];
-}
 
 // Functions:
 
@@ -102,6 +92,16 @@ const Trash = ({ className }: { className?: string }) => (
   </svg>
 );
 
+export interface DropzoneProps extends Omit<_DropzoneProps, "children"> {
+  containerClassName?: string;
+  dropZoneClassName?: string;
+  children?: (dropzone: DropzoneState) => React.ReactNode;
+  showFilesList?: boolean;
+  showErrorMessage?: boolean;
+  initialFiles?: File[];
+  onDeletedfile?: (index: number) => void | undefined;
+}
+
 const Dropzone = ({
   containerClassName,
   dropZoneClassName,
@@ -109,14 +109,13 @@ const Dropzone = ({
   showFilesList = true,
   showErrorMessage = true,
   initialFiles = [],
+  onDeletedfile,
   ...props
 }: DropzoneProps) => {
   // Constants:
   const dropzone = useDropzone({
     ...props,
-    onDrop(acceptedFiles, fileRejections, event) {
-      if (props.onDrop) props.onDrop(acceptedFiles, fileRejections, event);
-      else {
+    onDrop(acceptedFiles, fileRejections) {
         setFilesUploaded((_filesUploaded) => [
           ..._filesUploaded,
           ...acceptedFiles,
@@ -130,7 +129,7 @@ const Dropzone = ({
         } else {
           setErrorMessage("");
         }
-      }
+   
     },
   });
 
@@ -140,10 +139,11 @@ const Dropzone = ({
 
   // Functions:
   const deleteUploadedFile = (index: number) => {
-    setFilesUploaded((_uploadedFiles) => [
-      ..._uploadedFiles.slice(0, index),
-      ..._uploadedFiles.slice(index + 1),
-    ]);
+    if (onDeletedfile) { onDeletedfile(index); }
+     setFilesUploaded((_uploadedFiles) => [
+       ..._uploadedFiles.slice(0, index),
+       ..._uploadedFiles.slice(index + 1),
+     ]);
   };
 
   // Return:
