@@ -5,7 +5,14 @@ import { sentimentColumns } from "@/components/ui/sentimentColumns";
 import { type SentimentColumn } from "@/types/sentimentColums";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
-import { handleExport } from "@/utils/exportFile";
+import { handleExportCSV, handleExportExcel } from "@/utils/exportFile";
+
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@radix-ui/react-dropdown-menu";
 
 export default function DashboardPage() {
   const location = useLocation();
@@ -110,13 +117,33 @@ export default function DashboardPage() {
           Sentiment Dashboard
         </h2>
         <div>
-          <Button
-            onClick={() => handleExport(sentimentColumnsData)}
-            className="bg-teal-700 text-white hover:bg-teal-600"
-          >
-            <icons.export className="mr-2" />
-            Export Data
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="bg-teal-700 text-white hover:bg-teal-600">
+                <icons.export className="mr-2 h-4 w-4" />
+                Export Data
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              sideOffset={5}
+              className="w-48 rounded-xl shadow-lg border border-gray-200 bg-white"
+            >
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center px-3 py-1 rounded-md hover:bg-teal-50 focus:bg-teal-100"
+                onClick={() => handleExportCSV(sentimentColumnsData)}
+              >
+                Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center px-3 py-1 rounded-md hover:bg-teal-50 focus:bg-teal-100"
+                onClick={() => handleExportExcel(sentimentColumnsData)}
+              >
+                Export as Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button
             variant="outline"
             className="outline text-teal-600 hover:bg-teal-600 hover:text-white ml-4"
