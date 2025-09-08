@@ -8,33 +8,18 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   processUploadingDataSetToS3,
   fetchSentimentResultsForUser,
-  noCase
+  noCase,
 } from "@/utils/dashboardPageUtils";
 import { ProgressGame } from "@/components/ui/progress";
 import { handleExport } from "@/utils/exportFile";
 import { Badge } from "@/components/ui/badge";
 import { v4 as uuid } from "uuid";
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("access_token");
-
-      //Guest flow
-      if (!token) {
-        const guestResult = localStorage.getItem("guest_result");
-        if (guestResult) {
-          const parsedResult = JSON.parse(guestResult);
-          setSentimentData([parsedResult]);
-        }
-        return;
-      }
-
-
 export default function DashboardPage() {
   const location = useLocation();
   const [collectedFeedback, setCollectedFeedback] = useState(0);
   const [submitedRowId, setSubmitedRowId] = useState<string | null>(null);
-  const targetFeedback = 100; 
+  const targetFeedback = 100;
 
   const progress = Math.min(
     100,
@@ -50,12 +35,8 @@ export default function DashboardPage() {
     SentimentColumn[]
   >([]);
 
-    fetchData();
-  }, []);
-
-
   // Function to fetch all sentiment results for the user from DB
- const loadData = async () => {
+  const loadData = async () => {
     try {
       let rawData: any[] = [];
 
@@ -66,7 +47,7 @@ export default function DashboardPage() {
         const responseData = await fetchSentimentResultsForUser();
         if (responseData?.results?.length > 0) {
           rawData = responseData.results;
-         // console.log(">>> Loaded sentiment results from DB.");
+          // console.log(">>> Loaded sentiment results from DB.");
         } else {
           const guestResult = localStorage.getItem("guest_result");
           if (guestResult) {
@@ -95,7 +76,6 @@ export default function DashboardPage() {
       }));
 
       setSentimentColumnsData(columnsData);
-
     } catch (err: any) {
       console.error("Failed to load sentiment data:", err);
       setSentimentColumnsData([]);
@@ -106,37 +86,35 @@ export default function DashboardPage() {
     loadData();
   }, [apiResponse]);
 
- 
   // Handle feedback submission from DataTable
   const handleSubmitFeedback = useCallback((id: string, value: string) => {
     setSubmitedRowId(id);
     setCollectedFeedback((prev) => prev + 1);
     setSentimentColumnsData((prevData) =>
-      prevData.map((item) =>      
+      prevData.map((item) =>
         item.id === id
-          ? { ...item, feedback: { type: value as "positive" | "neutral" | "negative" } }
+          ? {
+              ...item,
+              feedback: { type: value as "positive" | "neutral" | "negative" },
+            }
           : item
       )
     );
+  }, []);
 
-    
-  }, []); 
-   
   useEffect(() => {
     console.log("SentimentColumnsData changed:", sentimentColumnsData);
   }, [sentimentColumnsData]);
 
- 
-const columns = useMemo(
-  () => sentimentColumns(handleSubmitFeedback),
-  [handleSubmitFeedback]
-);
-  
+  const columns = useMemo(
+    () => sentimentColumns(handleSubmitFeedback),
+    [handleSubmitFeedback]
+  );
 
   return (
     <>
       <div className="mx-3 py-5 flex justify-between">
-         {/* <pre>
+        {/* <pre>
           {JSON.stringify(
             sentimentColumnsData.map((item) => ({
               id: item.id?.toString() ?? uuid(),
@@ -197,5 +175,3 @@ const columns = useMemo(
     </>
   );
 }
-
-
