@@ -23,6 +23,8 @@ import { ProgressGame } from "@/components/ui/progress";
 import { handleExportCSV, handleExportExcel } from "@/utils/exportFile";
 import { Badge } from "@/components/ui/badge";
 
+import { v4 as uuid } from "uuid";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -30,7 +32,6 @@ import {
   DropdownMenuItem,
 } from "@radix-ui/react-dropdown-menu";
 import { User } from "@/types/User";
-import { v4 as uuid } from "uuid";
 
 export default function DashboardPage() {
   const location = useLocation();
@@ -51,6 +52,7 @@ export default function DashboardPage() {
   const [sentimentColumnsData, setSentimentColumnsData] = useState<
     SentimentColumn[]
   >([]);
+
 
   // wordclouds feature 5 starts
   const [selectedType, setSelectedType] = useState<
@@ -87,6 +89,7 @@ export default function DashboardPage() {
       return null;
     }
   }
+
 
   const loadData = async () => {
     try {
@@ -137,6 +140,10 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      setUser(JSON.parse(loggedInUser));
+    }
     loadData();
     const loggedInUser = localStorage.getItem("user");
     if (loggedInUser) {
@@ -204,9 +211,6 @@ export default function DashboardPage() {
     );
   }, []);
 
-  // useEffect(() => {
-  //   console.log("SentimentColumnsData changed:", sentimentColumnsData);
-  // }, [sentimentColumnsData]);
 
   const columns = useMemo(
     () => sentimentColumns(handleSubmitFeedback),
@@ -216,7 +220,8 @@ export default function DashboardPage() {
   return (
     <>
       <div className="mx-3 py-5 flex justify-between">
-        <h2 className="text-3xl font-semibold tracking-tight">
+        <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+
           Sentiment Dashboard
         </h2>
         <div>
