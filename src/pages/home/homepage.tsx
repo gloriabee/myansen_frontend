@@ -13,11 +13,11 @@ import {
 } from "@/utils/breakSyllable";
 import { isMyanmarText } from "@/utils/checkMyanmar";
 
+
 export default function HomePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const tokenRef = useRef<string | null>(null);
-
   const [activeTab, setActiveTab] = useState<string>("textOnly");
   const [content, setContent] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);

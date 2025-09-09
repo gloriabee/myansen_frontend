@@ -3,7 +3,7 @@ interface ExportRow {
   sentiment: string;
   confidence: number;
 }
-export const handleExport = (data: ExportRow[]) => {
+export const handleExportCSV = (data: ExportRow[]) => {
   const csvHeader = ["Text", "Sentiment", "Confidence(%)"];
   const csvRows = data.map((item) => {
     const confidence = Math.round(item.confidence * 100);
@@ -27,4 +27,22 @@ export const handleExport = (data: ExportRow[]) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+
+export const handleExportExcel = async (data: ExportRow[]) => {
+  const XLSX = await import("xlsx");
+
+  const worksheetData = data.map((item) => ({
+    Text: item.text,
+    Sentiment: item.sentiment,
+    "Confidence(%)": Math.round(item.confidence * 100),
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sentiment Results");
+  XLSX.writeFile(
+    workbook,
+    `sentiment_results_${new Date().toISOString().slice(0, 10)}.xlsx`
+  );
 };
