@@ -188,7 +188,7 @@ export default function ApiServicesPage() {
             columns={columns}
             data={apiKeys}
             noCase={"No Key Generated yet!"}
-            itemsPerPage={3}
+            itemsPerPage={5}
             onFetchData={fetchApiKeys}
           />
         </div>

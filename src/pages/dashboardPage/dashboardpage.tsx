@@ -145,15 +145,8 @@ export default function DashboardPage() {
       setUser(JSON.parse(loggedInUser));
     }
     loadData();
-    const loggedInUser = localStorage.getItem("user");
-    if (loggedInUser) {
-      setUser(JSON.parse(loggedInUser));
-    }
+   
   }, [apiResponse]);
-
-  // useEffect(() => {
-  //   console.log("Sentiment data loaded:", sentimentColumnsData);
-  // }, [sentimentColumnsData]);
 
   const positiveText = sentimentColumnsData
     .filter((item) => item.sentiment?.toLowerCase?.() === "positive")
@@ -192,8 +185,7 @@ export default function DashboardPage() {
   } else if (selectedType === "neutral")
     wordFreq = getWordFrequencies(neutralText);
 
-  const noCase =
-    "<b>No results yet!</b><br> Upload a file or paste text in the 'File Upload' tab to see sentiment analysis results here</br > ";
+
 
   // Handle feedback submission from DataTable
   const handleSubmitFeedback = useCallback((id: string, value: string) => {

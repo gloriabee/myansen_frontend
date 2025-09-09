@@ -29,18 +29,25 @@ export default function HomePage() {
     console.log("Token", token);
   }, []);
 
-  const handlefileConents = async (files: File[]): Promise<string[]> => {
-    const readFile = (file: File): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = () => reject(new Error("File reading failed"));
-        reader.readAsText(file);
-      });
-    };
+  const readFile = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error("File reading failed"));
+      reader.readAsText(file);
+    });
+  }
 
-    const fileReadPromises = files.map(readFile);
-    return Promise.all(fileReadPromises);
+ 
+  // Modified handleFileContents to split by line
+  const handleFileContents = async (files: File[]): Promise<string[]> => {
+    let allFileContents = [];
+    for (const file of files) {
+      const fileContent = await readFile(file); // Assuming you have a function to read the file.
+      const lines = fileContent.split("\n"); 
+      allFileContents.push(...lines); 
+    }
+    return allFileContents;
   };
 
   //user input API call
@@ -64,7 +71,7 @@ export default function HomePage() {
       //unauthorized error handling
       if (res.status === 401) {
         console.log(">>> Unauthorized access - token expired or invalid");
-        
+
         if (token) {
           localStorage.removeItem("access_token");
           localStorage.removeItem("user");
@@ -75,7 +82,7 @@ export default function HomePage() {
           const guestResult = await res.json();
           // localStorage.setItem("guest_result", JSON.stringify(guestResult));
           console.log(">>> Guest API response:", guestResult);
-          
+
           navigate("/dashboard", { state: { apiResponse: guestResult } });
           return;
         }
@@ -88,8 +95,6 @@ export default function HomePage() {
       const result = await res.json();
       console.log(">>> API response:", result);
       navigate("/dashboard", { state: { apiResponse: result } });
-     
-      
     } catch (error) {
       console.error("API call failed:", error);
       toast({
@@ -136,9 +141,8 @@ export default function HomePage() {
 
     //Check file contents is Myanmar text or not
     if ((files.length > 0 && files.length <= 20) || content.length > 0) {
-      fileContents = await handlefileConents(files);
+      fileContents = await handleFileContents(files);
       for (const fileContent of fileContents) {
-
         // console.log(">>File Content:", fileContent);
 
         console.log(">>>isMyanmarText:", isMyanmarText(fileContent));
@@ -158,7 +162,6 @@ export default function HomePage() {
         }
       }
       console.log(">>>End of File Content");
-      //Call API
     } else {
       toast({
         className: "w-[400px] text-left",
