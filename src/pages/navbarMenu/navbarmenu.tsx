@@ -10,7 +10,11 @@ export default function NavBarMenuPage() {
       label: "API-services",
       link: "/apiservices",
     },
-   
+    {
+      label: "User Guide",
+      link: "/apikeydoc",
+    },
+
   ];
   return <NavBar logoText="MyanSen" navItems={navItems} />;
 }
