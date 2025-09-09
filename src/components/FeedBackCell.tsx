@@ -7,12 +7,14 @@ interface FeedbackCellProps {
   id: string;
   defaultValue: string;
   onSubmit: (id: string, value: string) => void;
+  isLowConfidence?: boolean;
 }
 
 export function FeedbackCell({
   id,
   defaultValue,
   onSubmit,
+  isLowConfidence,
 }: FeedbackCellProps) {
   const normalizedDefault = defaultValue.toLowerCase();
   const [selectedValue, setSelectedValue] = useState(normalizedDefault);
@@ -41,7 +43,7 @@ export function FeedbackCell({
 
       <Button
         variant="default"
-        disabled={selectedValue === normalizedDefault}
+        disabled={!isLowConfidence}
         onClick={() => onSubmit(id, selectedValue)}
         className="bg-teal-600 mt-3 px-3 text-sm font-medium shadow-sm text-white hover:bg-teal-700 cursor-pointer hover:shadow-lg transition-shadow duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       >

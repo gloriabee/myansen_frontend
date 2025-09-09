@@ -22,7 +22,6 @@ import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 
 import { handleGoogleLogin } from "@/utils/googleAuth";
-import { jwtDecode } from "jwt-decode";
 
 
 // Validation schema
@@ -84,6 +83,7 @@ export function LoginForm({
       }
 
       const userData = await profileResponse.json();
+       console.log(">>>>>> User info:", userData);
 
       const normalizedUser = {
         ...userData,

@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 
 import HomePage from "@/pages/home/homepage";
-import TestMLOpsPage from "@/pages/testMLOps/testMLOpsPage";
+
 import NotFoundPage from "@/pages/ErrorPage/NotFoundPage";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
@@ -11,6 +11,7 @@ import UniversalErrorPage from "@/pages/ErrorPage/UniversalErrorPage";
 import DashboardPage from "@/pages/dashboardPage/dashboardpage";
 
 import ProtectedRoutes from "@/utils/protectedRoutes";
+import Reset from "./pages/auth/reset";
 
 export const router = createBrowserRouter([
   {
@@ -32,10 +33,6 @@ export const router = createBrowserRouter([
             path: "/apiservices",
             element: <ApiServicesPage />,
           },
-          {
-            path: "/testmlops",
-            element: <TestMLOpsPage />,
-          },
         ],
       },
       {
@@ -51,5 +48,9 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/reset",
+    element: <Reset />,
   },
 ]);

@@ -13,11 +13,11 @@ import {
 } from "@/utils/breakSyllable";
 import { isMyanmarText } from "@/utils/checkMyanmar";
 
+
 export default function HomePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const tokenRef = useRef<string | null>(null);
-
   const [activeTab, setActiveTab] = useState<string>("textOnly");
   const [content, setContent] = useState<string>("");
   const [files, setFiles] = useState<File[]>([]);
@@ -138,7 +138,9 @@ export default function HomePage() {
     if ((files.length > 0 && files.length <= 20) || content.length > 0) {
       fileContents = await handlefileConents(files);
       for (const fileContent of fileContents) {
+
         // console.log(">>File Content:", fileContent);
+
         console.log(">>>isMyanmarText:", isMyanmarText(fileContent));
 
         if (!isMyanmarText(fileContent)) {
@@ -156,6 +158,7 @@ export default function HomePage() {
         }
       }
       console.log(">>>End of File Content");
+      //Call API
     } else {
       toast({
         className: "w-[400px] text-left",
@@ -222,9 +225,11 @@ export default function HomePage() {
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-4 w-48" />
           </div>
-          <div className="flex items-center justify-center m-7">
-            <LoaderCircle className="animate-spin h-6 w-6 text-black" />
-            <span className="ml-2 text-2xl">Analyzing...</span>
+          <div className="fixed inset-0 z-50 flex items-center gap-2 justify-center bg-black/60 backdrop-blur-sm">
+            <LoaderCircle className="animate-spin text-white h-10 w-10 " />
+            <p className="text-white text-2xl md:text-5xl font-medium">
+              Analyzing...
+            </p>
           </div>
         </div>
       ) : (

@@ -146,14 +146,21 @@ export default function ApiServicesPage() {
     newKey.key_name = result.data.key_name;
     newKey.created_at = result.data.created_at;
     newKey.lastused_at = result.data.lastused_at;
+    newKey.public_key = result.data.public_key;
     console.log("New API Key Created:", result.data.key_name);
     setApiKeys((prevKeys) => [...prevKeys, newKey]);
     setNewKeyName("");
 
     toast({
       title: "API Key Created",
-      description: `New API key "${newKey.key_name}" has been created successfully.`,
-      className: "w-96 text-justify",
+      description: (
+    <span title={newKey.public_key} style={{wordBreak: "break-all"}}>
+      {newKey.public_key}
+    </span>
+  ),
+      className: "w-120 text-justify p-4 m-2",
+      action: <ToastAction altText="Copy" onClick={() => navigator.clipboard.writeText(newKey.public_key)}>Copy</ToastAction>,
+
     });
   };
   return (

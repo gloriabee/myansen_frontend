@@ -183,6 +183,8 @@ const NavBar = ({ logoText, navItems }: NavBarProps) => {
               </div>
             );
           })}
+
+          <AuthDropDown user={user}/>
         </div>
       )}
     </nav>
