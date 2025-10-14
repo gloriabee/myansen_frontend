@@ -12,11 +12,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   processUploadingDataSetToS3,
-  fetchSentimentResultsForUser,
   noCase,
 } from "@/utils/dashboardPageUtils";
 import { ProgressGame } from "@/components/ui/progress";
@@ -43,6 +42,7 @@ export default function DashboardPage() {
     Math.round((collectedFeedback / targetFeedback) * 100)
   );
 
+  // ✅ Use only the data passed via navigation state
   const apiResponse: any[] = useMemo(
     () => location.state?.apiResponse?.results || [],
     [location.state]
@@ -52,64 +52,20 @@ export default function DashboardPage() {
     SentimentColumn[]
   >([]);
 
-  // wordclouds feature 5 starts
-  const [selectedType, setSelectedType] = useState<
-    "positive" | "negative" | "neutral"
-  >("positive");
-
-  async function fetchSentimentResultsForUser() {
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      console.log("No token: guest mode, skip DB fetch.");
-      return null;
-    }
-
-    try {
-      const res = await fetch("http://127.0.0.1:8000/userinput", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (res.status === 401) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("user");
-        console.warn("Token expired. User will be logged out.");
-        return null;
-      }
-
-      return res.json();
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-      return null;
-    }
-  }
-
+  // ✅ Only local data shown (no history, no DB)
   const loadData = async () => {
     try {
+      // 🧹 Always start clean
+      localStorage.removeItem("guest_result");
+      setSentimentColumnsData([]);
+
       let rawData: any[] = [];
 
+      // ✅ Only use the latest results passed from previous page
       if (apiResponse && apiResponse.length > 0) {
-        //console.log("Using passed API response (guest or user session)");
         rawData = apiResponse;
-      } else {
-        const responseData = await fetchSentimentResultsForUser();
-        if (responseData?.results?.length > 0) {
-          rawData = responseData.results;
-        } else {
-          const guestResult = localStorage.getItem("guest_result");
-          if (guestResult) {
-            const parsed = JSON.parse(guestResult);
-            rawData = parsed.results || [];
-          } else {
-            console.log("No data found.");
-          }
-        }
       }
-      //grab colums data
+
       const columnsData: SentimentColumn[] = rawData.map((item: any) => ({
         id: item.id?.toString() ?? uuid(),
         text: item.text,
@@ -133,20 +89,23 @@ export default function DashboardPage() {
     }
   };
 
-  // for user authorization to enable export data
+  // ✅ For user export permissions
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    // clear previous session data every time dashboard opens
+    localStorage.removeItem("guest_result");
+    setSentimentColumnsData([]);
+
     loadData();
+
     const loggedInUser = localStorage.getItem("user");
     if (loggedInUser) {
       setUser(JSON.parse(loggedInUser));
+    } else {
+      setUser(null);
     }
   }, [apiResponse]);
-
-  // useEffect(() => {
-  //   console.log("Sentiment data loaded:", sentimentColumnsData);
-  // }, [sentimentColumnsData]);
 
   const positiveText = sentimentColumnsData
     .filter((item) => item.sentiment?.toLowerCase?.() === "positive")
@@ -159,14 +118,18 @@ export default function DashboardPage() {
     .join(" ");
 
   const neutralText = sentimentColumnsData
-    .filter((item) => item.sentiment?.toLowerCase?.() == "negative")
+    .filter((item) => item.sentiment?.toLowerCase?.() === "neutral")
     .map((item) => item.text)
     .join(" ");
+
+  const [selectedType, setSelectedType] = useState<
+    "positive" | "negative" | "neutral"
+  >("positive");
 
   const getWordFrequencies = (text: string) => {
     const words = text
       .toLowerCase()
-      .replace(/[^\u1000-\u109F\uAA60-\uAA7F\uA9E0-\uA9FF\s]/g, "") // ✅ keep Myanmar chars only
+      .replace(/[^\u1000-\u109F\uAA60-\uAA7F\uA9E0-\uA9FF\s]/g, "")
       .split(/\s+/)
       .filter((w) => w.length > 1);
 
@@ -177,18 +140,14 @@ export default function DashboardPage() {
 
     return Object.entries(freqMap).map(([text, value]) => ({ text, value }));
   };
-  let wordFreq;
-  if (selectedType === "positive") {
-    wordFreq = getWordFrequencies(positiveText);
-  } else if (selectedType === "negative") {
-    wordFreq = getWordFrequencies(negativeText);
-  } else if (selectedType === "neutral")
-    wordFreq = getWordFrequencies(neutralText);
 
-  const noCase =
-    "<b>No results yet!</b><br> Upload a file or paste text in the 'File Upload' tab to see sentiment analysis results here</br > ";
+  const wordFreq =
+    selectedType === "positive"
+      ? getWordFrequencies(positiveText)
+      : selectedType === "negative"
+      ? getWordFrequencies(negativeText)
+      : getWordFrequencies(neutralText);
 
-  // Handle feedback submission from DataTable
   const handleSubmitFeedback = useCallback((id: string, value: string) => {
     setSubmitedRowId(id);
     setCollectedFeedback((prev) => prev + 1);
@@ -203,10 +162,6 @@ export default function DashboardPage() {
       )
     );
   }, []);
-
-  // useEffect(() => {
-  //   console.log("SentimentColumnsData changed:", sentimentColumnsData);
-  // }, [sentimentColumnsData]);
 
   const columns = useMemo(
     () => sentimentColumns(handleSubmitFeedback),
@@ -278,12 +233,14 @@ export default function DashboardPage() {
           customMaker={"🥳"}
         />
       </div>
+
       <DataTable
         columns={columns}
         data={sentimentColumnsData}
         noCase={noCase}
         itemsPerPage={3}
       />
+
       <div className="mx-3 py-5">
         <Dialog>
           <DialogTrigger asChild>
