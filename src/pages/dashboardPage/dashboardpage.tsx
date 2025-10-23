@@ -233,6 +233,42 @@ export default function DashboardPage() {
           customMaker={"🥳"}
         />
       </div>
+      <DataTable
+        columns={columns}
+        data={sentimentColumnsData}
+        noCase={noCase}
+        itemsPerPage={3}
+      />
+      <div className="mx-3 py-5">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="bg-teal-700 text-white hover:bg-teal-600">
+              View Wordclouds
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-xl max-h-2xl">
+            <DialogHeader>
+              <DialogTitle>Wordcloud Viewer</DialogTitle>
+              <div className="pt-4">
+                <div className="mb-4 flex items-center gap-2">
+                  <label className="font-medium" htmlFor="type">
+                    Select Sentiment:
+                  </label>
+                  <select
+                    id="type"
+                    value={selectedType}
+                    onChange={(e) =>
+                      setSelectedType(
+                        e.target.value as "positive" | "negative" | "neutral"
+                      )
+                    }
+                    className="border border-gray-300 rounded px-2 py-1"
+                  >
+                    <option value="positive">Positive</option>
+                    <option value="negative">Negative</option>
+                    <option value="neutral">Neutral</option>
+                  </select>
+                </div>
 
       <DataTable
         columns={columns}
